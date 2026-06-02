@@ -45,11 +45,13 @@ export function ProductDetail() {
   const [relatedProducts, setRelatedProducts] = useState<ProductDetailType[]>([]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
     if (!id) return;
     let isMounted = true;
     setIsLoading(true);
+    setLoadError('');
     setActiveImageIndex(0);
 
     getProduct(id)
@@ -57,7 +59,7 @@ export function ProductDetail() {
         if (isMounted) setProduct(data);
       })
       .catch(() => {
-        if (isMounted) setProduct({ ...FALLBACK_PRODUCT, id });
+        if (isMounted) setLoadError('This product is unavailable right now.');
       })
       .finally(() => {
         if (isMounted) setIsLoading(false);
@@ -69,7 +71,7 @@ export function ProductDetail() {
   }, [id]);
 
   useEffect(() => {
-    if (isLoading || !product.category) return;
+    if (isLoading || loadError || !product.category) return;
     let isMounted = true;
 
     getProducts({ category: product.category, sort: 'popular' })
@@ -84,7 +86,7 @@ export function ProductDetail() {
     return () => {
       isMounted = false;
     };
-  }, [isLoading, product.category, product.id]);
+  }, [isLoading, loadError, product.category, product.id]);
 
   const isWishlisted = wishlist.some((item) => item.id === product.id);
   const currency = product.currency || 'EUR';
@@ -93,15 +95,45 @@ export function ProductDetail() {
     : [product.imageUrl || PRODUCT_IMAGES[0], PRODUCT_IMAGES[1], PRODUCT_IMAGES[2], PRODUCT_IMAGES[3]];
   const activeImage = productImages[activeImageIndex] || productImages[0];
   const details = product.details || FALLBACK_PRODUCT.details;
+  const isOutOfStock = product.stock !== undefined && product.stock < 1;
+  const maxQuantity = product.stock && product.stock > 0 ? product.stock : Number.POSITIVE_INFINITY;
 
   const handleAddToCart = () => {
+    if (isOutOfStock) return;
     addToCart(product, qty);
     toast.success(`${product.name} added to cart`);
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: product.name, text: product.shortDescription, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      toast.success('Product link copied');
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      toast.error('Unable to share this product');
+    }
   };
 
   const toggleAccordion = (name: string) => {
     setActiveAccordion(activeAccordion === name ? null : name);
   };
+
+  if (!isLoading && loadError) {
+    return (
+      <div className="container mx-auto px-6 py-32 text-center">
+        <h1 className="mb-4 font-serif text-4xl">Product unavailable</h1>
+        <p className="mb-8 text-[#737373]">{loadError}</p>
+        <Link to="/shop" className="inline-block border border-[#2D2D2D] px-8 py-3 text-sm font-medium uppercase tracking-widest hover:bg-[#2D2D2D] hover:text-white">
+          Return to Shop
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-6 py-12">
@@ -153,13 +185,20 @@ export function ProductDetail() {
             <div className="flex items-center border border-[#EAE7E0] w-32">
               <button className="px-4 py-3 hover:bg-[#F9F8F6]" onClick={() => setQty(Math.max(1, qty - 1))}><Minus className="w-4 h-4" /></button>
               <span className="flex-1 text-center font-medium">{qty}</span>
-              <button className="px-4 py-3 hover:bg-[#F9F8F6]" onClick={() => setQty(qty + 1)}><Plus className="w-4 h-4" /></button>
+              <button
+                className="px-4 py-3 hover:bg-[#F9F8F6] disabled:cursor-not-allowed disabled:opacity-40"
+                disabled={qty >= maxQuantity || isOutOfStock}
+                onClick={() => setQty(Math.min(qty + 1, maxQuantity))}
+              >
+                <Plus className="w-4 h-4" />
+              </button>
             </div>
             <button
               onClick={handleAddToCart}
-              className="flex-1 bg-[#2D2D2D] text-white py-3 font-medium tracking-wide uppercase hover:bg-black transition-colors"
+              disabled={isOutOfStock}
+              className="flex-1 bg-[#2D2D2D] text-white py-3 font-medium tracking-wide uppercase hover:bg-black transition-colors disabled:cursor-not-allowed disabled:bg-[#9E9B94]"
             >
-              Add to Cart
+              {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
             </button>
           </div>
 
@@ -195,8 +234,14 @@ export function ProductDetail() {
           </div>
 
           <div className="mt-8 flex gap-4 text-sm text-[#737373]">
-            <button className="flex items-center gap-2 hover:text-[#2D2D2D]"><Share2 className="w-4 h-4" /> Share</button>
-            <button className="flex items-center gap-2 hover:text-[#2D2D2D]"><Download className="w-4 h-4" /> Download 2D/3D</button>
+            <button type="button" onClick={handleShare} className="flex items-center gap-2 hover:text-[#2D2D2D]"><Share2 className="w-4 h-4" /> Share</button>
+            <button
+              type="button"
+              onClick={() => toast.info('2D/3D files are not available for this product yet.')}
+              className="flex items-center gap-2 hover:text-[#2D2D2D]"
+            >
+              <Download className="w-4 h-4" /> Request 2D/3D
+            </button>
           </div>
         </div>
       </div>

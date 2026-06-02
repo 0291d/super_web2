@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, ChevronDown, Download } from 'lucide-react';
+import { toast } from 'sonner';
 
 const MATERIALS = [
   {
@@ -98,9 +99,13 @@ export function Care() {
             {/* Download CTA */}
             <div className="mt-16 bg-[#F9F8F6] p-8 text-center border border-[#EAE7E0]">
               <h3 className="font-serif text-xl mb-4">Complete Care Guide</h3>
-              <p className="text-[#737373] text-sm mb-6">Download our comprehensive PDF guide for easy reference at home.</p>
-              <button className="inline-flex items-center gap-2 border border-[#2D2D2D] px-8 py-3 text-sm font-medium tracking-widest uppercase hover:bg-[#2D2D2D] hover:text-white transition-colors">
-                <Download className="w-4 h-4" /> Download PDF
+              <p className="text-[#737373] text-sm mb-6">Need a printable guide? Request it from customer care while the download library is prepared.</p>
+              <button
+                type="button"
+                onClick={() => toast.info('The printable care guide is not available yet.')}
+                className="inline-flex items-center gap-2 border border-[#2D2D2D] px-8 py-3 text-sm font-medium tracking-widest uppercase hover:bg-[#2D2D2D] hover:text-white transition-colors"
+              >
+                <Download className="w-4 h-4" /> Request PDF
               </button>
             </div>
           </div>

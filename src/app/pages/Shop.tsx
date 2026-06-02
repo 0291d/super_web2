@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { ProductCard } from '../components/ProductCard';
-import { ChevronDown, SlidersHorizontal } from 'lucide-react';
+import { ChevronDown, SlidersHorizontal, X } from 'lucide-react';
 import { Product } from '../context/GlobalContext';
 import { getProducts } from '../api/products';
 import { shopCategories, shopLinkFor, shopMenu } from '../data/shopMenu';
@@ -128,17 +128,32 @@ export function Shop() {
 
       <div className="flex gap-12">
         {showFilters && (
-          <aside className="hidden lg:block w-72 flex-shrink-0">
+          <button
+            type="button"
+            aria-label="Close filters"
+            onClick={() => setShowFilters(false)}
+            className="fixed inset-0 z-30 bg-black/30 lg:hidden"
+          />
+        )}
+        {showFilters && (
+          <aside className="fixed inset-y-0 left-0 z-40 w-[min(88vw,340px)] overflow-y-auto bg-[#F9F8F6] p-6 shadow-xl lg:static lg:z-auto lg:block lg:w-72 lg:flex-shrink-0 lg:overflow-visible lg:bg-transparent lg:p-0 lg:shadow-none">
+            <div className="mb-8 flex items-center justify-between lg:hidden">
+              <h2 className="font-serif text-2xl">Filters</h2>
+              <button type="button" onClick={() => setShowFilters(false)} aria-label="Close filters" className="p-2">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
             <div className="mb-8">
               <h3 className="font-serif text-lg mb-4">Category</h3>
               <div className="space-y-3">
-                <Link to="/shop" className={`block text-sm ${!category ? 'text-[#2D2D2D]' : 'text-[#737373]'} hover:text-[#2D2D2D]`}>
+                <Link to="/shop" onClick={() => setShowFilters(false)} className={`block text-sm ${!category ? 'text-[#2D2D2D]' : 'text-[#737373]'} hover:text-[#2D2D2D]`}>
                   All Products
                 </Link>
                 {shopCategories.map((item) => (
                   <Link
                     key={item}
                     to={shopLinkFor(item)}
+                    onClick={() => setShowFilters(false)}
                     className={`block text-sm ${category === item ? 'text-[#2D2D2D]' : 'text-[#737373]'} hover:text-[#2D2D2D]`}
                   >
                     {item}
@@ -155,6 +170,7 @@ export function Shop() {
                     <Link
                       key={item}
                       to={shopLinkFor(category, item)}
+                      onClick={() => setShowFilters(false)}
                       className={`block text-sm ${subcategory === item ? 'text-[#2D2D2D]' : 'text-[#737373]'} hover:text-[#2D2D2D]`}
                     >
                       {item}

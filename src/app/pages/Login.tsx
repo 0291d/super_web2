@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 
@@ -103,11 +103,9 @@ export function Login() {
               <label className="block text-xs font-medium tracking-wide uppercase text-[#737373] mb-2">Password</label>
               <input name="password" type="password" autoComplete="current-password" required className="w-full border border-[#EAE7E0] p-4 bg-transparent focus:outline-none focus:border-[#2D2D2D]" />
             </div>
-            <div className="flex justify-between items-center text-sm text-[#737373]">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" /> Remember me
-              </label>
-              <button type="button" className="underline">Forgot Password?</button>
+            <div className="flex justify-between items-center gap-4 text-sm text-[#737373]">
+              <span>Sign-in stays active on this device.</span>
+              <Link to="/service/faq" className="shrink-0 underline">Password help</Link>
             </div>
             <button disabled={isSubmitting} className="w-full bg-[#2D2D2D] text-white py-4 text-sm font-medium tracking-widest uppercase hover:bg-black transition-colors mt-8 disabled:opacity-60">
               {isSubmitting ? 'Signing In...' : 'Sign In'}

@@ -1,8 +1,28 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { Instagram, Facebook, Twitter, Youtube } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function Footer() {
+  const socialLinks = [
+    { label: 'ferm LIVING Instagram', href: 'https://www.instagram.com/fermliving/', Icon: Instagram },
+    { label: 'ferm LIVING Facebook', href: 'https://www.facebook.com/fermLIVING/', Icon: Facebook },
+    { label: 'ferm LIVING X', href: 'https://x.com/fermliving', Icon: Twitter },
+    { label: 'ferm LIVING YouTube', href: 'https://www.youtube.com/user/fermliving', Icon: Youtube },
+  ];
+
+  function handleNewsletterSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const email = String(formData.get('email') || '').trim();
+    if (!email) return;
+
+    window.localStorage.setItem('brew.newsletter_interest', email);
+    form.reset();
+    toast.success('Thanks. Your newsletter interest is saved on this device.');
+  }
+
   return (
     <footer className="bg-[#2D2D2D] text-white pt-20 pb-10">
       <div className="container mx-auto px-6">
@@ -13,9 +33,11 @@ export function Footer() {
             <p className="text-sm text-[#A3A3A3] mb-6 max-w-sm">
               Sign up to receive news, inspiration, and a 10% discount on your next purchase.
             </p>
-            <form className="flex border-b border-[#525252] pb-2 max-w-sm">
+            <form onSubmit={handleNewsletterSubmit} className="flex border-b border-[#525252] pb-2 max-w-sm">
               <input 
+                name="email"
                 type="email" 
+                required
                 placeholder="Email address" 
                 className="bg-transparent flex-1 focus:outline-none text-sm placeholder:text-[#737373]"
               />
@@ -61,14 +83,22 @@ export function Footer() {
             <Link to="/service/cookies" className="hover:text-white transition-colors">Cookies</Link>
           </div>
           
-          <div className="flex gap-6 mb-6 md:mb-0">
-            <Instagram className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
-            <Facebook className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
-            <Twitter className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
-            <Youtube className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
+          <div className="flex gap-6 mb-6 md:mb-0" aria-label="ferm LIVING social channels">
+            {socialLinks.map(({ label, href, Icon }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={label}
+                className="hover:text-white transition-colors"
+              >
+                <Icon className="w-5 h-5" aria-hidden="true" />
+              </a>
+            ))}
           </div>
 
-          <div className="flex items-center gap-2 cursor-pointer hover:text-white transition-colors">
+          <div className="flex items-center gap-2">
             <span>Global (EN)</span>
             <span>EUR</span>
           </div>

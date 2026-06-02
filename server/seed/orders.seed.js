@@ -78,6 +78,9 @@ export const orders = Array.from({ length: customers.length * 2 }, (_, index) =>
     currency: 'EUR',
     status: index < customers.length ? statuses[index % 5] : statuses[index % statuses.length],
     notes: index % 6 === 0 ? 'Seed demo order for revenue reporting.' : '',
+    publicToken: `seed-access-${String(index + 1).padStart(2, '0')}`,
+    inventoryReserved: false,
+    inventoryRestored: false,
     createdAt,
     updatedAt: createdAt,
   };

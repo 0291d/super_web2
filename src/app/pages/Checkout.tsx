@@ -8,6 +8,7 @@ import { useGlobal } from '../context/GlobalContext';
 export function Checkout() {
   const { cart, cartTotal, clearCart } = useGlobal();
   const [sameBilling, setSameBilling] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState<'vnpay' | 'card_demo'>('vnpay');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
@@ -52,15 +53,21 @@ export function Checkout() {
         items: cart,
         shippingAddress,
         billingAddress,
-        paymentMethod: String(formData.get('paymentMethod') || 'card_demo'),
+        paymentMethod,
         deliveryMethod: String(formData.get('deliveryMethod') || 'standard'),
         notes: String(formData.get('notes') || ''),
       });
       clearCart();
+      if (order.paymentUrl) {
+        toast.success('Redirecting to VNPay');
+        window.location.href = order.paymentUrl;
+        return;
+      }
+
       toast.success('Order placed');
-      navigate(`/order-confirmation/${order.orderNumber}`);
-    } catch {
-      toast.error('Unable to place order');
+      navigate(`/order-confirmation/${order.orderNumber}?token=${encodeURIComponent(order.publicToken || '')}`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Unable to place order');
     } finally {
       setIsSubmitting(false);
     }
@@ -164,13 +171,42 @@ export function Checkout() {
 
           <section className="space-y-6">
             <h2 className="font-serif text-2xl">Payment</h2>
-            <div className="border border-[#EAE7E0] p-4">
-              <label className="flex items-center gap-3">
-                <input name="paymentMethod" value="card_demo" type="radio" defaultChecked />
-                Demo Card Payment
-              </label>
-              <p className="mt-3 text-sm text-[#737373]">This demo checkout does not process real payments. Orders are stored with paid demo status.</p>
-            </div>
+            <label className={`block cursor-pointer border p-4 ${paymentMethod === 'vnpay' ? 'border-[#2D2D2D]' : 'border-[#EAE7E0]'}`}>
+              <div className="flex items-start gap-3">
+                <input
+                  name="paymentMethod"
+                  type="radio"
+                  value="vnpay"
+                  checked={paymentMethod === 'vnpay'}
+                  onChange={() => setPaymentMethod('vnpay')}
+                  className="mt-1"
+                />
+                <span>
+                  <span className="block font-medium">VNPay</span>
+                  <span className="mt-2 block text-sm text-[#737373]">
+                    You will be redirected to the VNPay sandbox payment gateway to complete this order.
+                  </span>
+                </span>
+              </div>
+            </label>
+            <label className={`block cursor-pointer border p-4 ${paymentMethod === 'card_demo' ? 'border-[#2D2D2D]' : 'border-[#EAE7E0]'}`}>
+              <div className="flex items-start gap-3">
+                <input
+                  name="paymentMethod"
+                  type="radio"
+                  value="card_demo"
+                  checked={paymentMethod === 'card_demo'}
+                  onChange={() => setPaymentMethod('card_demo')}
+                  className="mt-1"
+                />
+                <span>
+                  <span className="block font-medium">Demo Card Payment</span>
+                  <span className="mt-2 block text-sm text-[#737373]">
+                    This demo option stores the order immediately with paid status.
+                  </span>
+                </span>
+              </div>
+            </label>
             <label>
               <span className={labelClass}>Order Notes</span>
               <textarea name="notes" rows={4} className={fieldClass} />
@@ -201,7 +237,7 @@ export function Checkout() {
             <div className="flex justify-between border-t border-[#EAE7E0] pt-4 text-lg font-medium"><span>Total</span><span>EUR {total.toFixed(2)}</span></div>
           </div>
           <button disabled={isSubmitting} className="mt-8 w-full bg-[#2D2D2D] py-4 text-sm font-medium uppercase tracking-widest text-white hover:bg-black disabled:opacity-60">
-            {isSubmitting ? 'Placing Order...' : 'Place Order'}
+            {isSubmitting ? 'Placing Order...' : paymentMethod === 'vnpay' ? 'Pay with VNPay' : 'Place Order'}
           </button>
         </aside>
       </form>

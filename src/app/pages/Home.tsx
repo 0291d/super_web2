@@ -4,10 +4,28 @@ import { getProducts } from '../api/products';
 import { ProductCard } from '../components/ProductCard';
 import { PlaceholderImage } from '../components/PlaceholderImage';
 import { Product } from '../context/GlobalContext';
+import { motion, useReducedMotion } from 'motion/react';
+
+function RevealSection({ className, children }: { className?: string; children: React.ReactNode }) {
+  const reduceMotion = useReducedMotion();
+
+  return (
+    <motion.section
+      className={className}
+      initial={reduceMotion ? undefined : { opacity: 0, y: 46 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.18 }}
+      transition={{ duration: reduceMotion ? 0 : 0.72, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.section>
+  );
+}
 
 export function Home() {
   const [newArrivals, setNewArrivals] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     let isMounted = true;
@@ -31,32 +49,74 @@ export function Home() {
   return (
     <div className="flex flex-col">
       <section className="relative h-[85vh] w-full bg-[#EAE7E0] flex items-end pb-20">
-        <div className="absolute inset-0">
+        <motion.div
+          className="absolute inset-0 overflow-hidden"
+          initial={reduceMotion ? undefined : { opacity: 0.45, scale: 1.06 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: reduceMotion ? 0 : 1.15, ease: [0.22, 1, 0.36, 1] }}
+        >
           <PlaceholderImage text="HERO LIFESTYLE IMAGE" className="opacity-80" />
-        </div>
-        <div className="container mx-auto px-6 relative z-10 text-center text-[#2D2D2D]">
-          <h1 className="text-5xl md:text-7xl font-serif mb-6">The Art of Creating Space</h1>
-          <p className="text-lg mb-8 max-w-xl mx-auto">Discover our new collection of carefully crafted pieces designed to bring warmth and balance to your home.</p>
-          <Link to="/shop" className="inline-block bg-[#2D2D2D] text-white px-10 py-4 text-sm font-medium tracking-widest uppercase hover:bg-black transition-colors">
+        </motion.div>
+        <motion.div
+          className="container mx-auto px-6 relative z-10 text-center text-[#2D2D2D]"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: reduceMotion ? 0 : 0.12, delayChildren: reduceMotion ? 0 : 0.18 } },
+          }}
+        >
+          <motion.h1
+            className="text-5xl md:text-7xl font-serif mb-6"
+            variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
+            transition={{ duration: reduceMotion ? 0 : 0.62, ease: [0.22, 1, 0.36, 1] }}
+          >
+            The Art of Creating Space
+          </motion.h1>
+          <motion.p
+            className="text-lg mb-8 max-w-xl mx-auto"
+            variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } }}
+            transition={{ duration: reduceMotion ? 0 : 0.58, ease: [0.22, 1, 0.36, 1] }}
+          >
+            Discover our new collection of carefully crafted pieces designed to bring warmth and balance to your home.
+          </motion.p>
+          <motion.div
+            variants={{ hidden: { opacity: 0, y: 18 }, visible: { opacity: 1, y: 0 } }}
+            transition={{ duration: reduceMotion ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={reduceMotion ? undefined : { y: -3 }}
+            whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+            className="inline-block"
+          >
+            <Link to="/shop" className="inline-block bg-[#2D2D2D] text-white px-10 py-4 text-sm font-medium tracking-widest uppercase hover:bg-black transition-colors">
             Explore Collection
-          </Link>
-        </div>
+            </Link>
+          </motion.div>
+        </motion.div>
       </section>
 
-      <section className="py-20 container mx-auto px-6">
+      <RevealSection className="py-20 container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {['New Arrivals', 'Gifts under EUR 100', 'Outdoor Living', 'Classics'].map((title, i) => (
-            <Link to="/shop" key={i} className="group block relative aspect-square overflow-hidden bg-[#F3F1EC]">
-              <PlaceholderImage text={`CATEGORY ${i + 1}`} className="transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors">
-                <h3 className="text-white font-serif text-2xl tracking-wide">{title}</h3>
-              </div>
-            </Link>
+            <motion.div
+              key={title}
+              initial={reduceMotion ? undefined : { opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: reduceMotion ? 0 : 0.5, delay: reduceMotion ? 0 : i * 0.1 }}
+              whileHover={reduceMotion ? undefined : { y: -6 }}
+            >
+              <Link to="/shop" className="group block relative aspect-square overflow-hidden bg-[#F3F1EC] shadow-sm hover:shadow-lg transition-shadow duration-300">
+                <PlaceholderImage text={`CATEGORY ${i + 1}`} className="transition-transform duration-700 group-hover:scale-105" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors">
+                  <h3 className="text-white font-serif text-2xl tracking-wide">{title}</h3>
+                </div>
+              </Link>
+            </motion.div>
           ))}
         </div>
-      </section>
+      </RevealSection>
 
-      <section className="py-20 bg-[#F9F8F6]">
+      <RevealSection className="py-20 bg-[#F9F8F6]">
         <div className="container mx-auto px-6">
           <div className="flex justify-between items-end mb-12">
             <div>
@@ -75,9 +135,9 @@ export function Home() {
             )}
           </div>
         </div>
-      </section>
+      </RevealSection>
 
-      <section className="py-20">
+      <RevealSection className="py-20">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="aspect-[4/5] bg-[#EAE7E0]">
@@ -95,9 +155,9 @@ export function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </RevealSection>
 
-      <section className="relative h-[60vh] bg-[#DCD5C6] flex items-center justify-center">
+      <RevealSection className="relative h-[60vh] bg-[#DCD5C6] flex items-center justify-center">
         <div className="absolute inset-0">
           <PlaceholderImage text="EDITORIAL BANNER" />
         </div>
@@ -106,9 +166,9 @@ export function Home() {
           <p className="text-[#737373] mb-6">Elevate everyday rituals with our new kitchen accessories.</p>
           <Link to="/shop/kitchen" className="text-sm font-medium tracking-widest uppercase hover:underline">Discover Now</Link>
         </div>
-      </section>
+      </RevealSection>
 
-      <section className="border-t border-[#EAE7E0] py-12 bg-white">
+      <RevealSection className="border-t border-[#EAE7E0] py-12 bg-white">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
             <div>
@@ -129,7 +189,7 @@ export function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </RevealSection>
     </div>
   );
 }

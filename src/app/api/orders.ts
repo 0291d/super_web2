@@ -26,6 +26,9 @@ export type Order = {
   total: number;
   currency: string;
   status: string;
+  paymentMethod?: string;
+  deliveryMethod?: string;
+  publicToken?: string;
   createdAt: string;
 };
 
@@ -39,7 +42,7 @@ export async function createOrder(input: {
   paymentMethod?: string;
   deliveryMethod?: string;
   notes?: string;
-}): Promise<Order> {
+}): Promise<Order & { paymentUrl?: string }> {
   const response = await fetch('/api/orders', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
@@ -47,14 +50,19 @@ export async function createOrder(input: {
   });
 
   if (!response.ok) {
-    throw new Error('Unable to create order');
+    const data = await response.json().catch(() => null);
+    throw new Error(data?.message || 'Unable to create order');
   }
 
-  return response.json();
+  const data = await response.json();
+  return data.order ? { ...data.order, paymentUrl: data.paymentUrl } : data;
 }
 
-export async function getOrder(orderNumber: string): Promise<Order> {
-  const response = await fetch(`/api/orders/${encodeURIComponent(orderNumber)}`);
+export async function getOrder(orderNumber: string, token = ''): Promise<Order> {
+  const suffix = token ? `?token=${encodeURIComponent(token)}` : '';
+  const response = await fetch(`/api/orders/${encodeURIComponent(orderNumber)}${suffix}`, {
+    headers: authHeaders(),
+  });
   if (!response.ok) throw new Error('Unable to load order');
   return response.json();
 }

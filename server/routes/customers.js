@@ -13,7 +13,7 @@ router.get('/', requireAuth, requireAdmin, async (_req, res, next) => {
     const orderStats = await Order.aggregate([
       {
         $match: {
-          status: { $ne: 'cancelled' },
+          status: { $in: ['paid', 'processing', 'completed'] },
           email: { $in: emails },
         },
       },

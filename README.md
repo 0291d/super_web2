@@ -1,40 +1,54 @@
-# Super Web2 - BREW E-commerce
+# Super Web2
 
-Du an web ban hang noi that/phong cach song, gom frontend React/Vite va backend Express/MongoDB. Frontend chay qua Vite, backend cung cap REST API cho san pham, don hang, tai khoan, bai viet inspire, customer service va trang professionals.
+Du an web ban hang noi that gom:
 
-## Cong nghe chinh
+- Frontend: React + Vite
+- Backend: Node.js + Express
+- Database: MongoDB
 
-- Frontend: React 18, React Router, Vite, Tailwind CSS, Radix UI, MUI icons, lucide-react, sonner.
-- Backend: Node.js, Express, Mongoose, MongoDB.
-- Tooling: nodemon, concurrently.
+## 1. Can cai truoc
 
-## Yeu cau truoc khi chay
+May can co:
 
-- Cai Node.js va npm.
-- Cai MongoDB Community Server hoac co MongoDB URI tuong duong.
-- Dam bao MongoDB dang chay local neu dung cau hinh mac dinh.
+- Node.js LTS: https://nodejs.org
+- MongoDB Community Server hoac MongoDB Atlas URI
+- Git neu muon clone tu GitHub
 
-## Mo du an lan dau
+Kiem tra Node va npm:
 
-1. Cai dependencies:
+```powershell
+node -v
+npm -v
+```
 
-```bash
+## 2. Tai code ve may
+
+Neu chua co source:
+
+```powershell
+git clone https://github.com/0291d/super_web2.git
+cd super_web2
+```
+
+## 3. Cai dependencies
+
+Lan dau chay project can cai thu vien:
+
+```powershell
 npm install
 ```
 
-2. Tao file `.env` tu file mau:
+Lenh nay se tao lai folder `node_modules/`. Folder nay khong dua len GitHub.
 
-```bash
-copy .env.example .env
-```
+## 4. Tao file cau hinh `.env`
 
-Neu dung PowerShell co the dung:
+Copy file mau:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-3. Kiem tra noi dung `.env`:
+Noi dung mac dinh:
 
 ```env
 PORT=5000
@@ -42,193 +56,114 @@ MONGODB_URI=mongodb://127.0.0.1:27017/brew
 CLIENT_ORIGIN=http://localhost:5173
 ```
 
-Co the them tai khoan admin khi seed du lieu:
+Neu dung MongoDB Atlas, thay `MONGODB_URI` bang connection string cua Atlas.
 
-```env
-ADMIN_EMAIL=admin@brew.local
-ADMIN_PASSWORD=admin12345
+
+
+Neu khong them, project dung mac dinh tk admin:
+
+- Email: `admin@brew.local`
+- Password: `admin12345`
+
+Tai khoan nguoi dung demo:
+
+- Email: `user@brew.local`
+- Password: `user12345`
+
+## 5. Bat MongoDB
+
+Neu dung MongoDB local, dam bao MongoDB dang chay.
+
+Co the kiem tra bang:
+
+```powershell
+mongosh
 ```
 
-Neu khong khai bao, seed se dung mac dinh `admin@brew.local` / `admin12345`.
+Neu `mongosh` ket noi duoc la MongoDB dang chay. Neu dung MongoDB Atlas thi khong can chay MongoDB local.
 
-4. Seed du lieu mau vao MongoDB:
+## 6. Nap du lieu mau
 
-```bash
+Sau khi `.env` da dung va MongoDB dang chay:
+
+```powershell
 npm run seed
 ```
 
-Lenh nay se tao/cap nhat du lieu mau cho products, orders, inspire stories, professionals, service pages va tai khoan admin.
+Lenh nay tao du lieu mau cho san pham, don hang, bai viet, service pages, professionals, user demo va user admin.
 
-5. Chay frontend va backend cung luc:
+## 7. Chay web
 
-```bash
+Chay frontend va backend cung luc:
+
+```powershell
 npm run dev:all
 ```
 
-- Frontend: `http://localhost:5173`
-- Backend API: `http://localhost:5000`
-- Health check: `http://localhost:5000/api/health`
+Sau khi terminal chay xong, mo trinh duyet:
 
-## Cac lenh thuong dung
+- Web frontend: http://localhost:5173
+- Backend API: http://localhost:5000
+- Health check: http://localhost:5000/api/health
 
-```bash
+Dung server bang `Ctrl + C` trong terminal.
+
+## 8. Cac lenh hay dung
+
+Chay rieng frontend:
+
+```powershell
 npm run dev
 ```
 
-Chay rieng frontend Vite.
+Chay rieng backend:
 
-```bash
+```powershell
 npm run dev:server
 ```
 
-Chay rieng backend Express bang nodemon.
+Chay frontend va backend:
 
-```bash
+```powershell
 npm run dev:all
 ```
 
-Chay frontend va backend cung luc.
+Seed lai database: 
 
-```bash
+```powershell
 npm run seed
 ```
 
-Nap lai du lieu mau vao MongoDB.
+Build frontend production:
 
-```bash
+```powershell
 npm run build
 ```
 
-Build frontend production vao thu muc `dist`.
+Sau khi build, folder `dist/` se duoc tao lai. Folder nay khong dua len GitHub.
 
-```bash
-npm start
-```
-
-Chay backend Express o che do start.
-
-## Cau truc thu muc
+## 9. Cau truc folder
 
 ```txt
-src/
-  app/
-    api/          Goi API tu frontend
-    components/   Layout, header, footer, cart drawer, search, product card, UI components
-    context/      AuthContext va GlobalContext
-    data/         Du lieu tinh cho menu, rooms, inspire categories
-    lib/          Helper xu ly anh
-    pages/        Cac trang user va admin
-    routes.tsx    Khai bao route frontend
-  styles/         CSS global, theme, fonts, Tailwind
-
-server/
-  config/         Ket noi database
-  middleware/     Auth middleware
-  models/         Mongoose models
-  routes/         REST API routes
-  seed/           Du lieu seed theo module
-  seed.js         Script nap du lieu mau
-
-public/           Static assets public
-img/              Anh san pham theo danh muc
-dist/             Ban build production
+src/        Frontend React
+server/     Backend Express va API
+img/        Anh san pham theo danh muc
+public/     Static assets public
+.env        Cau hinh local, khong commit
 ```
 
-## Module frontend da phat trien
+## 10. Loi thuong gap
 
-### Public storefront
+Neu `npm run dev:all` bao loi thieu package:
 
-- Home: trang chu gioi thieu san pham va noi dung noi bat.
-- Shop / Products: danh sach san pham, ho tro route theo category.
-- Product detail: chi tiet san pham, anh, thong tin, thao tac them gio hang.
-- Cart: gio hang va cap nhat so luong san pham.
-- Checkout: tao don hang demo thong qua API orders.
-- Order confirmation: hien thi thong tin don hang theo ma don.
-- Wishlist: danh sach san pham yeu thich trong state frontend.
-- Search overlay: tim kiem san pham trong giao dien.
+```powershell
+npm install
+```
 
-### Content va service pages
+Neu backend khong ket noi database, kiem tra:
 
-- Rooms: danh sach phong/khong gian.
-- Room detail: chi tiet mot room.
-- Inspiration / Stories: danh sach bai viet inspire.
-- Story detail: chi tiet bai viet.
-- Styling sessions, Care, Service page detail: cac trang dich vu/cham soc khach hang theo slug.
-- Professionals: trang danh cho professional/trade va form inquiry.
+- MongoDB local da chay chua
+- `MONGODB_URI` trong `.env` co dung khong
+- Neu dung Atlas, IP may da duoc allow trong Network Access chua
 
-### Account va auth
-
-- Login/Register: dang nhap va dang ky tai khoan.
-- Account: xem/cap nhat thong tin nguoi dung, dia chi, newsletter.
-- AuthContext: luu user hien tai, token va trang thai dang nhap.
-
-### Admin
-
-Duong dan admin nam trong `/admin`.
-
-- `/admin/products`: quan ly san pham.
-- `/admin/revenue`: bao cao doanh thu, don hang, gia tri don trung binh va san pham ban chay.
-- `/admin/rooms`: quan ly noi dung rooms o frontend.
-- `/admin/professionals`: quan ly trang professionals va inquiry.
-- `/admin/customer-service`: quan ly service pages.
-- `/admin/inspire`: quan ly inspire stories.
-
-Luu y: cac API tao/sua/xoa can dang nhap bang user co role `admin`.
-
-## Module backend/API da phat trien
-
-### Auth
-
-Base path: `/api/auth`
-
-- `POST /register`: dang ky user.
-- `POST /login`: dang nhap, tra ve user va token.
-- `GET /me`: lay user hien tai.
-- `PATCH /me`: cap nhat ho ten, newsletter, dia chi.
-
-### Products
-
-Base path: `/api/products`
-
-- `GET /`: danh sach san pham, co filter `category`, `subcategory`, `q`, `sort`.
-- `GET /:id`: lay san pham theo Mongo `_id`, `productId` hoac `slug`.
-- `POST /`: tao san pham, yeu cau admin.
-- `PUT /:id`: cap nhat san pham, yeu cau admin.
-- `DELETE /:id`: xoa san pham, yeu cau admin.
-
-### Orders
-
-Base path: `/api/orders`
-
-- `POST /`: tao don hang.
-- `GET /my`: danh sach don hang cua user dang nhap.
-- `GET /`: danh sach tat ca don hang, yeu cau admin.
-- `GET /:orderNumber`: lay chi tiet don hang theo ma don.
-
-### Stories / Inspiration
-
-Base path: `/api/stories`
-
-- `GET /`: danh sach stories, ho tro `category`, `q`, `featured`, `includeDrafts`.
-- `GET /:id`: chi tiet story theo `_id`, `storyId` hoac `slug`.
-- `POST /`, `PUT /:id`, `DELETE /:id`: quan tri story, yeu cau admin.
-
-### Service Pages
-
-Base path: `/api/service-pages`
-
-- `GET /`: danh sach service pages, mac dinh chi lay published.
-- `GET /:id`: chi tiet service page theo `_id`, `pageId` hoac `slug`.
-- `POST /`, `PUT /:id`, `DELETE /:id`: quan tri service page, yeu cau admin.
-
-### Professionals
-
-Base path: `/api/professionals`
-
-- `GET /`: lay trang professionals dang published.
-- `GET /admin`: lay trang professionals cho admin.
-- `PUT /admin`: cap nhat trang professionals, yeu cau admin.
-- `POST /inquiries`: gui inquiry tu frontend.
-- `GET /inquiries`: danh sach inquiry, yeu cau admin.
-- `PATCH /inquiries/:id`: cap nhat inquiry, yeu cau admin.
-- `DELETE /inquiries/:id`: xoa inquiry, yeu cau admin.
+Neu port bi trung, doi `PORT` trong `.env` hoac tat app dang dung port do.

@@ -43,11 +43,8 @@ export function Wishlist() {
       <div className="text-center max-w-2xl mx-auto mb-16">
         <h1 className="text-4xl font-serif mb-4">Your Wishlist</h1>
         <p className="text-[#737373]">
-          Save your favorite pieces here. Log in to access your wishlist across all devices.
+          Save your favorite pieces here on this device while you browse.
         </p>
-        <Link to="/login" className="inline-block mt-4 text-sm font-medium tracking-wide uppercase underline">
-          Log In or Register
-        </Link>
       </div>
 
       {isLoading ? (

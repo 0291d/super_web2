@@ -3,19 +3,31 @@ import { useGlobal } from '../context/GlobalContext';
 import { X, Minus, Plus } from 'lucide-react';
 import { Link } from 'react-router';
 import { PlaceholderImage } from './PlaceholderImage';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 
 export function CartDrawer() {
   const { isCartOpen, setIsCartOpen, cart, updateQuantity, removeFromCart, cartTotal } = useGlobal();
-
-  if (!isCartOpen) return null;
+  const reduceMotion = useReducedMotion();
 
   return (
-    <>
-      <div 
-        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 transition-opacity"
-        onClick={() => setIsCartOpen(false)}
-      />
-      <div className="fixed top-0 right-0 h-full w-full max-w-md bg-[#F9F8F6] shadow-xl z-50 flex flex-col transform transition-transform">
+    <AnimatePresence>
+      {isCartOpen && (
+        <>
+          <motion.div
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.2 }}
+            onClick={() => setIsCartOpen(false)}
+          />
+          <motion.div
+            className="fixed top-0 right-0 h-full w-full max-w-md bg-[#F9F8F6] shadow-xl z-50 flex flex-col"
+            initial={reduceMotion ? { opacity: 0 } : { x: '100%' }}
+            animate={reduceMotion ? { opacity: 1 } : { x: 0 }}
+            exit={reduceMotion ? { opacity: 0 } : { x: '100%' }}
+            transition={{ duration: reduceMotion ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}
+          >
         <div className="flex items-center justify-between p-6 border-b border-[#EAE7E0]">
           <h2 className="text-xl font-serif">Your Cart ({cart.length})</h2>
           <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-[#EAE7E0] rounded-full transition-colors">
@@ -108,7 +120,9 @@ export function CartDrawer() {
             </div>
           </div>
         )}
-      </div>
-    </>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

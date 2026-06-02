@@ -33,15 +33,19 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <div 
-      className="group relative flex flex-col cursor-pointer"
+      className="surface-lift group relative flex flex-col cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <Link to={`/product/${product.id}`} className="block relative aspect-[4/5] bg-[#EAE7E0] mb-4 overflow-hidden">
-        {isHovered ? (
-          <PlaceholderImage text={`PRODUCT ${product.id}`} src={hoverImage} alt={product.name} />
-        ) : (
-          <PlaceholderImage text={`PRODUCT ${product.id}`} src={primaryImage} alt={product.name} />
+        <PlaceholderImage text={`PRODUCT ${product.id}`} src={primaryImage} alt={product.name} className="transition-transform duration-500 group-hover:scale-[1.03]" />
+        {hoverImage !== primaryImage && (
+          <PlaceholderImage
+            text={`PRODUCT ${product.id}`}
+            src={hoverImage}
+            alt={product.name}
+            className={`absolute inset-0 transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
+          />
         )}
         
         {/* Badges */}

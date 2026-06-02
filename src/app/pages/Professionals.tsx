@@ -59,6 +59,7 @@ export function Professionals() {
 
   const cards = [...(page.cards || [])].filter((card) => card.isActive !== false).sort((a, b) => (a.order || 0) - (b.order || 0));
   const catalogues = [...(page.catalogues || [])].filter((item) => item.isActive !== false).sort((a, b) => (a.order || 0) - (b.order || 0));
+  const isExternalLink = (href = '') => /^https?:\/\//i.test(href);
 
   return (
     <div>
@@ -76,15 +77,25 @@ export function Professionals() {
       <section className="bg-[#F9F8F6] py-20">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {cards.map((card) => (
-              <a key={card.title} href={card.href || '#inquiry'} className="group flex h-full cursor-pointer flex-col border border-[#EAE7E0] bg-white p-10 transition-colors hover:border-[#2D2D2D]">
-                <h3 className="mb-4 font-serif text-2xl">{card.title}</h3>
-                <p className="mb-8 text-[#737373]">{card.description}</p>
-                <span className="mt-auto flex items-center gap-2 text-sm font-medium uppercase tracking-widest text-[#9E9B94] transition-colors group-hover:text-[#2D2D2D]">
-                  {card.linkLabel || 'Explore'} <ArrowRight className="h-4 w-4" />
-                </span>
-              </a>
-            ))}
+            {cards.map((card) => {
+              const href = card.href || '#inquiry';
+              const isExternal = isExternalLink(href);
+              return (
+                <a
+                  key={card.title}
+                  href={href}
+                  target={isExternal ? '_blank' : undefined}
+                  rel={isExternal ? 'noreferrer' : undefined}
+                  className="group flex h-full cursor-pointer flex-col border border-[#EAE7E0] bg-white p-10 transition-colors hover:border-[#2D2D2D]"
+                >
+                  <h3 className="mb-4 font-serif text-2xl">{card.title}</h3>
+                  <p className="mb-8 text-[#737373]">{card.description}</p>
+                  <span className="mt-auto flex items-center gap-2 text-sm font-medium uppercase tracking-widest text-[#9E9B94] transition-colors group-hover:text-[#2D2D2D]">
+                    {card.linkLabel || 'Explore'} <ArrowRight className="h-4 w-4" />
+                  </span>
+                </a>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -140,7 +151,18 @@ export function Professionals() {
               <h2 className="mb-8 font-serif text-3xl">{page.cataloguesTitle}</h2>
               <div className="space-y-8">
                 {catalogues.map((catalogue) => (
-                  <a key={catalogue.title} href={catalogue.fileUrl || '#'} className="group flex cursor-pointer items-center justify-between border-b border-[#EAE7E0] pb-6">
+                  <button
+                    key={catalogue.title}
+                    type="button"
+                    onClick={() => {
+                      if (!catalogue.fileUrl || catalogue.fileUrl.startsWith('/downloads/')) {
+                        toast.info('This catalogue file is being prepared and is not available yet.');
+                        return;
+                      }
+                      window.open(catalogue.fileUrl, '_blank', 'noopener,noreferrer');
+                    }}
+                    className="group flex w-full cursor-pointer items-center justify-between border-b border-[#EAE7E0] pb-6 text-left"
+                  >
                     <div>
                       <h4 className="mb-1 font-serif text-lg transition-colors group-hover:text-[#737373]">{catalogue.title}</h4>
                       {catalogue.description && <p className="mb-2 text-sm text-[#737373]">{catalogue.description}</p>}
@@ -149,7 +171,7 @@ export function Professionals() {
                     <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[#EAE7E0] transition-colors group-hover:bg-[#EAE7E0]">
                       <Download className="h-4 w-4 text-[#2D2D2D]" />
                     </div>
-                  </a>
+                  </button>
                 ))}
               </div>
 

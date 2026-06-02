@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { ChevronDown, Download } from 'lucide-react';
+import { toast } from 'sonner';
 import { getServicePage, ServicePage } from '../api/servicePages';
 import { PlaceholderImage } from '../components/PlaceholderImage';
 
@@ -58,6 +59,7 @@ export function ServicePageDetail() {
   }
 
   const isFaqPage = page.slug === 'faq';
+  const pendingDownload = page.ctaHref?.startsWith('/downloads/');
 
   return (
     <div className="min-h-screen bg-[#F9F8F6]">
@@ -124,9 +126,19 @@ export function ServicePageDetail() {
 
         {page.ctaLabel && page.ctaHref && (
           <div className="mt-14 text-center">
-            <a href={page.ctaHref} className="inline-flex items-center gap-2 border border-[#2D2D2D] px-8 py-3 text-sm font-medium uppercase tracking-widest hover:bg-[#2D2D2D] hover:text-white">
-              <Download className="h-4 w-4" /> {page.ctaLabel}
-            </a>
+            {pendingDownload ? (
+              <button
+                type="button"
+                onClick={() => toast.info('This download is being prepared and is not available yet.')}
+                className="inline-flex items-center gap-2 border border-[#2D2D2D] px-8 py-3 text-sm font-medium uppercase tracking-widest hover:bg-[#2D2D2D] hover:text-white"
+              >
+                <Download className="h-4 w-4" /> Request Download
+              </button>
+            ) : (
+              <a href={page.ctaHref} className="inline-flex items-center gap-2 border border-[#2D2D2D] px-8 py-3 text-sm font-medium uppercase tracking-widest hover:bg-[#2D2D2D] hover:text-white">
+                <Download className="h-4 w-4" /> {page.ctaLabel}
+              </a>
+            )}
           </div>
         )}
       </section>

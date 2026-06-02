@@ -41,6 +41,10 @@ function getRangeStart(range: RangeKey) {
   return start;
 }
 
+function isRevenueOrder(order: Order) {
+  return ['paid', 'processing', 'completed'].includes(order.status);
+}
+
 export function AdminRevenue() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [range, setRange] = useState<RangeKey>('30d');
@@ -77,7 +81,7 @@ export function AdminRevenue() {
   }, [orders, range]);
 
   const metrics = useMemo(() => {
-    const revenueOrders = filteredOrders.filter((order) => order.status !== 'cancelled');
+    const revenueOrders = filteredOrders.filter(isRevenueOrder);
     const revenue = revenueOrders.reduce((sum, order) => sum + Number(order.total || 0), 0);
     const subtotal = revenueOrders.reduce((sum, order) => sum + Number(order.subtotal || 0), 0);
     const tax = revenueOrders.reduce((sum, order) => sum + Number(order.taxTotal || 0), 0);
@@ -103,7 +107,7 @@ export function AdminRevenue() {
     const totals = new Map<string, { date: string; revenue: number; orders: number }>();
 
     filteredOrders
-      .filter((order) => order.status !== 'cancelled')
+      .filter(isRevenueOrder)
       .forEach((order) => {
         const key = dateKey(order.createdAt);
         const current = totals.get(key) || { date: key, revenue: 0, orders: 0 };
@@ -119,7 +123,7 @@ export function AdminRevenue() {
     const totals = new Map<string, { name: string; quantity: number; revenue: number }>();
 
     filteredOrders
-      .filter((order) => order.status !== 'cancelled')
+      .filter(isRevenueOrder)
       .forEach((order) => {
         order.items.forEach((item) => {
           const key = item.productId || item.id || item.name;

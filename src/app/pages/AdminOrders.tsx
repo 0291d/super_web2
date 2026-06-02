@@ -54,14 +54,14 @@ export function AdminOrders() {
   }, [isAuthLoading, location.pathname, navigate, user]);
 
   const metrics = useMemo(() => {
-    const activeOrders = orders.filter((order) => order.status !== 'cancelled');
+    const paidOrders = orders.filter((order) => ['paid', 'processing', 'completed'].includes(order.status));
     return {
       total: orders.length,
       pending: orders.filter((order) => order.status === 'pending').length,
       processing: orders.filter((order) => order.status === 'processing').length,
       completed: orders.filter((order) => order.status === 'completed').length,
       cancelled: orders.filter((order) => order.status === 'cancelled').length,
-      revenue: activeOrders.reduce((sum, order) => sum + Number(order.total || 0), 0),
+      revenue: paidOrders.reduce((sum, order) => sum + Number(order.total || 0), 0),
     };
   }, [orders]);
 

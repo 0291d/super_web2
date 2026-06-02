@@ -64,6 +64,23 @@ await User.bulkWrite(
 console.log(`Seeded ${customers.length} demo customers into brew.users`);
 console.log(`Demo customer password: ${customerPassword}`);
 
+const demoUserEmail = 'user@brew.local';
+const demoUserPassword = 'user12345';
+await User.updateOne(
+  { email: demoUserEmail },
+  {
+    $setOnInsert: {
+      firstName: 'Demo',
+      lastName: 'User',
+      email: demoUserEmail,
+      passwordHash: await hashPassword(demoUserPassword),
+      role: 'user',
+    },
+  },
+  { upsert: true },
+);
+console.log(`Demo user login: ${demoUserEmail} / ${demoUserPassword}`);
+
 const adminEmail = process.env.ADMIN_EMAIL || 'admin@brew.local';
 const adminPassword = process.env.ADMIN_PASSWORD || 'admin12345';
 const admin = await User.findOne({ email: adminEmail });

@@ -21,6 +21,8 @@ export type Order = {
   shippingAddress: CheckoutAddress;
   billingAddress: CheckoutAddress;
   subtotal: number;
+  discountRate?: number;
+  discountTotal?: number;
   shippingTotal: number;
   taxTotal: number;
   total: number;

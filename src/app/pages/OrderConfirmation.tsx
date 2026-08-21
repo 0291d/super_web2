@@ -47,6 +47,12 @@ export function OrderConfirmation() {
         <div className="mx-auto mb-8 max-w-sm space-y-3 border-y border-[#EAE7E0] py-6 text-sm">
           <div className="flex justify-between"><span>Order number</span><span className="font-medium">{order.orderNumber}</span></div>
           <div className="flex justify-between"><span>Status</span><span className="font-medium capitalize">{order.status}</span></div>
+          {Number(order.discountTotal || 0) > 0 && (
+            <div className="flex justify-between">
+              <span>Discount</span>
+              <span className="font-medium">-{order.currency} {Number(order.discountTotal || 0).toFixed(2)}</span>
+            </div>
+          )}
           <div className="flex justify-between"><span>Total</span><span className="font-medium">{order.currency} {order.total.toFixed(2)}</span></div>
         </div>
         <Link to="/shop" className="inline-block bg-[#2D2D2D] px-8 py-3 text-sm uppercase tracking-widest text-white hover:bg-black">

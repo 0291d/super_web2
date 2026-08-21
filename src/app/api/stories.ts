@@ -23,6 +23,7 @@ export type Story = {
   sections?: StorySection[];
   quote?: string;
   relatedProductIds?: string[];
+  sourceUrl?: string;
   seoTitle?: string;
   seoDescription?: string;
 };

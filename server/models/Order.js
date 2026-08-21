@@ -54,6 +54,8 @@ const orderSchema = new mongoose.Schema(
     refundedAt: { type: Date },
     deliveryMethod: { type: String, trim: true, default: 'standard' },
     subtotal: { type: Number, required: true, min: 0 },
+    discountRate: { type: Number, min: 0, default: 0 },
+    discountTotal: { type: Number, min: 0, default: 0 },
     shippingTotal: { type: Number, required: true, min: 0 },
     taxTotal: { type: Number, required: true, min: 0 },
     total: { type: Number, required: true, min: 0 },

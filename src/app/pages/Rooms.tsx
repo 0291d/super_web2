@@ -1,10 +1,36 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { PlaceholderImage } from '../components/PlaceholderImage';
 import { ArrowRight } from 'lucide-react';
-import { roomOptions, roomSlug } from '../data/rooms';
+import { getRooms, RoomSetting } from '../api/rooms';
+import { roomImages, roomOptions, roomSlug } from '../data/rooms';
 
 export function Rooms() {
+  const [rooms, setRooms] = useState<RoomSetting[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    getRooms()
+      .then((data) => {
+        if (isMounted) setRooms(data);
+      })
+      .catch(() => {
+        if (isMounted) setRooms([]);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const imageByRoom = useMemo(() => {
+    return rooms.reduce<Record<string, string>>((acc, room) => {
+      acc[room.name] = room.imageUrl || '';
+      return acc;
+    }, {});
+  }, [rooms]);
+
   return (
     <div>
       <div className="bg-[#EAE7E0] py-20 text-center">
@@ -19,7 +45,12 @@ export function Rooms() {
           {roomOptions.map((room) => (
             <Link to={`/rooms/${roomSlug(room)}`} key={room} className="group block">
               <div className="aspect-[4/5] bg-[#F9F8F6] overflow-hidden mb-6 relative">
-                <PlaceholderImage text={room.toUpperCase()} className="transition-transform duration-700 group-hover:scale-105" />
+                <PlaceholderImage
+                  text={room.toUpperCase()}
+                  src={imageByRoom[room] || roomImages[room]}
+                  alt={room}
+                  className="transition-transform duration-700 group-hover:scale-105"
+                />
               </div>
               <h2 className="text-2xl font-serif mb-2">{room}</h2>
               <span className="flex items-center gap-2 text-sm font-medium tracking-widest uppercase text-[#737373] group-hover:text-[#2D2D2D] transition-colors">

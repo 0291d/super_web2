@@ -7,7 +7,10 @@ const router = Router();
 
 router.get('/', requireAuth, requireAdmin, async (_req, res, next) => {
   try {
-    const users = await User.find({ role: 'user' }).sort({ createdAt: -1 });
+    const users = await User.find({
+      role: 'user',
+      $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
+    }).sort({ createdAt: -1 });
     const emails = users.map((user) => user.email);
 
     const orderStats = await Order.aggregate([

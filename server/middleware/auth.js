@@ -12,7 +12,7 @@ export async function requireAuth(req, res, next) {
     }
 
     const user = await User.findById(payload.sub);
-    if (!user) {
+    if (!user || user.isDeleted === true || ['locked', 'inactive'].includes(user.status)) {
       return res.status(401).json({ message: 'Authentication required' });
     }
 
@@ -30,7 +30,10 @@ export async function optionalAuth(req, _res, next) {
     const payload = token ? verifyToken(token) : null;
 
     if (payload?.sub) {
-      req.user = await User.findById(payload.sub);
+      const user = await User.findById(payload.sub);
+      if (user && user.isDeleted !== true && !['locked', 'inactive'].includes(user.status)) {
+        req.user = user;
+      }
     }
 
     next();
@@ -45,4 +48,14 @@ export function requireAdmin(req, res, next) {
   }
 
   next();
+}
+
+export function authorizeRoles(...roles) {
+  return (req, res, next) => {
+    if (!roles.includes(req.user?.role)) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    next();
+  };
 }

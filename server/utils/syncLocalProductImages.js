@@ -158,11 +158,13 @@ function buildImageIndexes(localProducts) {
   return { byCategory, byKey };
 }
 
-function findImageSource(product, imageIndexes, categoryIndexes) {
+function findImageSource(product, imageIndexes, categoryIndexes, { allowCategoryFallback = false } = {}) {
   for (const key of productMatchKeys(product)) {
     const imageSource = imageIndexes.byKey.get(slugify(key));
     if (imageSource) return imageSource;
   }
+
+  if (!allowCategoryFallback) return null;
 
   const imageCategory = product.category in localImageCategoryFallback ? localImageCategoryFallback[product.category] : product.category;
   const categoryImages = imageIndexes.byCategory.get(imageCategory) || [];
@@ -173,7 +175,12 @@ function findImageSource(product, imageIndexes, categoryIndexes) {
   return categoryImages[categoryIndex % categoryImages.length];
 }
 
-export async function syncLocalProductImages({ projectRoot, imgRoot = path.join(projectRoot, 'img') }) {
+export async function syncLocalProductImages({
+  projectRoot,
+  imgRoot = path.join(projectRoot, 'img'),
+  preserveExistingImages = false,
+  allowCategoryFallback = false,
+}) {
   const products = makeLocalProducts(projectRoot, imgRoot);
 
   if (!products.length) {
@@ -193,7 +200,7 @@ export async function syncLocalProductImages({ projectRoot, imgRoot = path.join(
 
   const existingProducts = await Product.find({ productId: { $nin: generatedProductIds } })
     .sort({ category: 1, productId: 1 })
-    .select('productId slug name category details.itemNumber')
+    .select('productId slug name category details.itemNumber images')
     .lean();
 
   const imageIndexes = buildImageIndexes(products);
@@ -201,7 +208,9 @@ export async function syncLocalProductImages({ projectRoot, imgRoot = path.join(
   const updateOperations = [];
 
   existingProducts.forEach((product) => {
-    const imageSource = findImageSource(product, imageIndexes, categoryIndexes);
+    if (preserveExistingImages && product.images?.filter(Boolean).length > 0) return;
+
+    const imageSource = findImageSource(product, imageIndexes, categoryIndexes, { allowCategoryFallback });
     if (!imageSource) return;
 
     updateOperations.push({

@@ -4,11 +4,7 @@ import { Mail, Search, ShoppingBag, UserRound, UsersRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { AdminCustomer, getAdminCustomers } from '../api/customers';
 import { useAuth } from '../context/AuthContext';
-
-function formatDate(value?: string | null) {
-  if (!value) return 'Never';
-  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(value));
-}
+import { formatDate as formatSafeDate } from '../lib/dates';
 
 function formatMoney(value: number) {
   return new Intl.NumberFormat('en-US', {
@@ -163,8 +159,8 @@ export function AdminCustomers() {
                           </td>
                           <td className="px-6 py-4 font-medium">{customer.orderCount}</td>
                           <td className="px-6 py-4 font-medium">{formatMoney(customer.totalSpent)}</td>
-                          <td className="px-6 py-4 text-[#737373]">{formatDate(customer.lastLoginAt)}</td>
-                          <td className="px-6 py-4 text-[#737373]">{formatDate(customer.createdAt)}</td>
+                          <td className="px-6 py-4 text-[#737373]">{formatSafeDate(customer.lastLoginAt, 'Never')}</td>
+                          <td className="px-6 py-4 text-[#737373]">{formatSafeDate(customer.createdAt)}</td>
                           <td className="px-6 py-4 text-[#737373]">{locationText}</td>
                         </tr>
                       );

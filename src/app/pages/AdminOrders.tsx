@@ -4,6 +4,7 @@ import { CheckCircle2, Clock3, PackageCheck, ReceiptText, Search, XCircle } from
 import { toast } from 'sonner';
 import { getAllOrders, Order, OrderStatus, updateOrderStatus } from '../api/orders';
 import { useAuth } from '../context/AuthContext';
+import { formatDate } from '../lib/dates';
 
 const statuses: Array<'all' | OrderStatus> = ['all', 'pending', 'paid', 'processing', 'completed', 'cancelled'];
 
@@ -13,10 +14,6 @@ function formatMoney(value: number, currency = 'EUR') {
     currency,
     maximumFractionDigits: 0,
   }).format(value);
-}
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(value));
 }
 
 function itemCount(order: Order) {

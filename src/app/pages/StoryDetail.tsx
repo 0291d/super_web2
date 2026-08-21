@@ -6,11 +6,25 @@ import { Facebook, Twitter, Instagram } from 'lucide-react';
 import { Product } from '../context/GlobalContext';
 import { getStory, Story } from '../api/stories';
 import { getProduct } from '../api/products';
+import { formatDate } from '../lib/dates';
 
-function formatDate(value?: string) {
-  if (!value) return '';
-  return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(value));
-}
+const fermLivingStoryUrls: Record<string, string> = {
+  story_001: 'https://fermliving.com/blogs/stories/living-with-kids-at-home-with-fanny-nilsson',
+  story_002: 'https://fermliving.com/blogs/stories/notes-on-romanticism-autumn-winter-2025',
+  story_003: 'https://fermliving.com/blogs/stories/back-to-school-with-kids',
+  story_004: 'https://fermliving.com/blogs/stories/office-edition-at-home-with-sune-palner',
+  story_005: 'https://fermliving.com/blogs/stories/expanding-the-dapple-collection',
+  story_006: 'https://fermliving.com/blogs/stories/copenhagen-city-guide-3daysofdesign',
+  story_007: 'https://fermliving.com/blogs/stories/the-process-behind-vegea',
+  story_008: 'https://fermliving.com/blogs/stories/set-the-outdoor-table-with-nuria-val',
+  story_009: 'https://fermliving.com/blogs/stories/at-home-with-eva-papadaki',
+  story_010: 'https://fermliving.com/blogs/stories/behind-the-design-dapple-collection',
+  story_011: 'https://fermliving.com/blogs/stories/meet-our-design-studio',
+  story_012: 'https://fermliving.com/blogs/stories/the-home-of-liene-meneve',
+  story_013: 'https://fermliving.com/blogs/stories/the-art-of-balance',
+  story_014: 'https://fermliving.com/blogs/stories/the-garden-of-malene-lei-raben',
+  story_015: 'https://fermliving.com/blogs/stories/the-love-story-of-a-classic',
+};
 
 export function StoryDetail() {
   const { id } = useParams();
@@ -52,6 +66,9 @@ export function StoryDetail() {
     return <div className="container mx-auto px-6 py-20 text-center text-sm text-[#737373]">Story not found.</div>;
   }
 
+  const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
+  const readMoreUrl = story.sourceUrl || fermLivingStoryUrls[story.id] || 'https://fermliving.com/blogs/stories';
+
   return (
     <article className="bg-[#F9F8F6]">
       <section className="relative h-[80vh] w-full">
@@ -60,7 +77,7 @@ export function StoryDetail() {
 
       <section className="container mx-auto max-w-4xl px-6 py-16 text-center">
         <Link to={`/inspire?category=${encodeURIComponent(story.category)}`} className="mb-6 block text-xs font-medium uppercase tracking-widest text-[#9E9B94]">
-          {story.category} • {formatDate(story.publishedAt)} • {story.readTime}
+          ferm LIVING Stories / {story.category} / {formatDate(story.publishedAt, '', 'en')} / {story.readTime}
         </Link>
         <h1 className="mb-8 font-serif text-5xl md:text-6xl">{story.title}</h1>
         <p className="text-xl leading-relaxed text-[#737373]">{story.excerpt}</p>
@@ -95,8 +112,24 @@ export function StoryDetail() {
         )}
 
         <div className="mt-20 flex items-center gap-4 border-t border-[#EAE7E0] pt-12">
+          <a
+            href={readMoreUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border-b border-[#2D2D2D] pb-1 text-xs font-medium uppercase tracking-widest text-[#2D2D2D] hover:border-[#737373] hover:text-[#737373]"
+          >
+            Read more...
+          </a>
           <span className="text-sm font-medium uppercase tracking-widest text-[#9E9B94]">Share Story</span>
-          <Facebook className="h-5 w-5 cursor-pointer text-[#9E9B94] hover:text-[#2D2D2D]" />
+          <a
+            href={facebookShareUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Share this story on Facebook"
+            className="text-[#9E9B94] hover:text-[#2D2D2D]"
+          >
+            <Facebook className="h-5 w-5" />
+          </a>
           <Twitter className="h-5 w-5 cursor-pointer text-[#9E9B94] hover:text-[#2D2D2D]" />
           <Instagram className="h-5 w-5 cursor-pointer text-[#9E9B94] hover:text-[#2D2D2D]" />
         </div>

@@ -3,7 +3,9 @@ export type AuthUser = {
   firstName: string;
   lastName: string;
   email: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'warehouse' | 'accountant';
+  status?: 'active' | 'locked' | 'inactive';
+  isDeleted?: boolean;
   newsletter?: boolean;
   addresses?: Array<{
     label: string;
@@ -106,6 +108,24 @@ export async function updateCurrentUser(input: {
 
   if (!response.ok) {
     throw new Error('Unable to update account');
+  }
+
+  const data = await response.json();
+  return data.user;
+}
+
+export async function changeCurrentUserPassword(input: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<AuthUser> {
+  const response = await fetch('/api/auth/password', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+
+  if (!response.ok) {
+    throw new Error('Unable to change password');
   }
 
   const data = await response.json();

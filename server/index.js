@@ -5,12 +5,16 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.js';
+import accountingRoutes from './routes/accounting.js';
+import adminUserRoutes from './routes/adminUsers.js';
 import customerRoutes from './routes/customers.js';
 import orderRoutes from './routes/orders.js';
 import productRoutes from './routes/products.js';
 import professionalRoutes from './routes/professionals.js';
+import roomRoutes from './routes/rooms.js';
 import servicePageRoutes from './routes/servicePages.js';
 import storyRoutes from './routes/stories.js';
+import warehouseRoutes from './routes/warehouse.js';
 import { syncLocalProductImages } from './utils/syncLocalProductImages.js';
 
 dotenv.config();
@@ -33,12 +37,16 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/accounting', accountingRoutes);
+app.use('/api/admin/users', adminUserRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/professionals', professionalRoutes);
+app.use('/api/rooms', roomRoutes);
 app.use('/api/service-pages', servicePageRoutes);
 app.use('/api/stories', storyRoutes);
+app.use('/api/warehouse', warehouseRoutes);
 
 app.use((err, _req, res, _next) => {
   console.error(err);
@@ -56,9 +64,9 @@ app.use((err, _req, res, _next) => {
 
 await connectDB();
 
-if (process.env.AUTO_SYNC_PRODUCT_IMAGES !== 'false') {
+if (process.env.AUTO_SYNC_PRODUCT_IMAGES === 'true') {
   try {
-    const result = await syncLocalProductImages({ projectRoot });
+    const result = await syncLocalProductImages({ projectRoot, preserveExistingImages: true });
     if (result.count) {
       console.log(`Scanned ${result.count} local image product groups`);
       console.log(`Updated ${result.updatedExistingCount || 0} existing catalog products with local images`);

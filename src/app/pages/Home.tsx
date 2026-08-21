@@ -22,6 +22,13 @@ function RevealSection({ className, children }: { className?: string; children: 
   );
 }
 
+const categoryBanners = [
+  { title: 'New Arrivals', image: '/assets/img/preview.webp' },
+  { title: 'Gifts', image: '/assets/img/preview2.webp' },
+  { title: 'Outdoor Living', image: '/assets/img/preview3.jpg' },
+  { title: 'Classics', image: '/assets/img/preview4.jpg' },
+];
+
 export function Home() {
   const [newArrivals, setNewArrivals] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
@@ -96,9 +103,9 @@ export function Home() {
 
       <RevealSection className="py-20 container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {['New Arrivals', 'Gifts under EUR 100', 'Outdoor Living', 'Classics'].map((title, i) => (
+          {categoryBanners.map((banner, i) => (
             <motion.div
-              key={title}
+              key={banner.title}
               initial={reduceMotion ? undefined : { opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -106,9 +113,13 @@ export function Home() {
               whileHover={reduceMotion ? undefined : { y: -6 }}
             >
               <Link to="/shop" className="group block relative aspect-square overflow-hidden bg-[#F3F1EC] shadow-sm hover:shadow-lg transition-shadow duration-300">
-                <PlaceholderImage text={`CATEGORY ${i + 1}`} className="transition-transform duration-700 group-hover:scale-105" />
+                <PlaceholderImage
+                  text={banner.title}
+                  src={banner.image}
+                  className="transition-transform duration-700 group-hover:scale-105"
+                />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors">
-                  <h3 className="text-white font-serif text-2xl tracking-wide">{title}</h3>
+                  <h3 className="text-white font-serif text-2xl tracking-wide">{banner.title}</h3>
                 </div>
               </Link>
             </motion.div>
@@ -159,7 +170,7 @@ export function Home() {
 
       <RevealSection className="relative h-[60vh] bg-[#DCD5C6] flex items-center justify-center">
         <div className="absolute inset-0">
-          <PlaceholderImage text="EDITORIAL BANNER" />
+          <PlaceholderImage text="EDITORIAL BANNER" src="https://presscloud.com/file/65/653421688636002/gallery.webp" />
         </div>
         <div className="relative z-10 text-center bg-white/90 p-12 max-w-lg mx-6">
           <h2 className="text-3xl font-serif mb-4">The Kitchen Collection</h2>

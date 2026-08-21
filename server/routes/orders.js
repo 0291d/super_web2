@@ -10,6 +10,7 @@ import {
   refundVnpayTransaction,
   verifyVnpayReturn,
 } from '../utils/vnpay.js';
+import { markPaymentPaid, paymentMethodForOrder } from '../services/payments.js';
 
 const router = Router();
 
@@ -25,6 +26,24 @@ function makePublicToken() {
 
 function roundMoney(value) {
   return Math.round(value * 100) / 100;
+}
+
+async function calculateAccountDiscount(req, subtotal) {
+  if (!req.user) {
+    return { discountRate: 0, discountTotal: 0 };
+  }
+
+  const userId = req.user._id.toString();
+  const previousOrderCount = await Order.countDocuments({
+    $or: [{ userId }, { email: req.user.email }],
+    status: { $ne: 'cancelled' },
+  });
+  const discountRate = previousOrderCount === 0 ? 0.1 : subtotal > 500 ? 0.05 : 0;
+
+  return {
+    discountRate,
+    discountTotal: roundMoney(subtotal * discountRate),
+  };
 }
 
 function clientIp(req) {
@@ -162,9 +181,11 @@ router.post('/', optionalAuth, async (req, res, next) => {
 
     const { normalizedItems, currency } = await buildOrderItems(items);
     const subtotal = roundMoney(normalizedItems.reduce((sum, item) => sum + item.lineTotal, 0));
+    const { discountRate, discountTotal } = await calculateAccountDiscount(req, subtotal);
+    const discountedSubtotal = roundMoney(Math.max(0, subtotal - discountTotal));
     const shippingTotal = subtotal >= 150 ? 0 : 15;
-    const taxTotal = roundMoney(subtotal * 0.08);
-    const total = roundMoney(subtotal + shippingTotal + taxTotal);
+    const taxTotal = roundMoney(discountedSubtotal * 0.08);
+    const total = roundMoney(discountedSubtotal + shippingTotal + taxTotal);
     const orderNumber = makeOrderNumber();
 
     await reserveInventory(normalizedItems);
@@ -180,15 +201,17 @@ router.post('/', optionalAuth, async (req, res, next) => {
         paymentProvider: paymentMethod === 'vnpay' ? 'vnpay' : 'demo',
         deliveryMethod: deliveryMethod || 'standard',
         subtotal,
+        discountRate,
+        discountTotal,
         shippingTotal,
         taxTotal,
         total,
         currency,
-        status: paymentMethod === 'vnpay' ? 'pending' : 'paid',
+        status: ['vnpay', 'cod'].includes(paymentMethod) ? 'pending' : 'paid',
         notes,
         publicToken: makePublicToken(),
         inventoryReserved: true,
-        paidAt: paymentMethod === 'vnpay' ? undefined : new Date(),
+        paidAt: ['vnpay', 'cod'].includes(paymentMethod) ? undefined : new Date(),
       });
 
       if (paymentMethod === 'vnpay') {
@@ -202,6 +225,12 @@ router.post('/', optionalAuth, async (req, res, next) => {
         order.paymentAmountVnd = payment.paymentAmountVnd;
         await order.save();
         return res.status(201).json({ order, paymentUrl: payment.paymentUrl });
+      }
+
+      try {
+        if (order.status === 'paid') await markPaymentPaid(order, { method: paymentMethodForOrder(order), paidAt: order.paidAt || new Date() });
+      } catch (error) {
+        console.error('Unable to record demo payment', { orderId: order._id.toString(), message: error.message });
       }
 
       return res.status(201).json(order);
@@ -245,6 +274,17 @@ router.get('/payments/vnpay/return', async (req, res, next) => {
 
     await applyVnpayResult(order, req.query);
     await order.save();
+    if (paymentSucceeded) {
+      try {
+        await markPaymentPaid(order, {
+          method: 'VNPAY',
+          transactionCode: String(req.query.vnp_TransactionNo || order.paymentTransactionNo || ''),
+          paidAt: order.paidAt || new Date(),
+        });
+      } catch (error) {
+        console.error('Unable to record VNPay payment', { orderId: order._id.toString(), message: error.message });
+      }
+    }
     const paymentStatus = paymentSucceeded ? 'paid' : 'failed';
     return res.redirect(
       `${clientOrigin}/order-confirmation/${encodeURIComponent(order.orderNumber)}?token=${encodeURIComponent(order.publicToken || '')}&paymentStatus=${paymentStatus}`,
@@ -273,6 +313,15 @@ router.get('/payments/vnpay/ipn', async (req, res, next) => {
 
     await applyVnpayResult(order, req.query);
     await order.save();
+    try {
+      await markPaymentPaid(order, {
+        method: 'VNPAY',
+        transactionCode: String(req.query.vnp_TransactionNo || order.paymentTransactionNo || ''),
+        paidAt: order.paidAt || new Date(),
+      });
+    } catch (error) {
+      console.error('Unable to record VNPay payment', { orderId: order._id.toString(), message: error.message });
+    }
 
     return res.json({ RspCode: '00', Message: 'Confirm Success' });
   } catch (error) {

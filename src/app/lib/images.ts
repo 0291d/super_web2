@@ -3,6 +3,8 @@ export const INTERIOR_IMAGES = {
     'https://images.unsplash.com/photo-1752004028694-72610be3604e?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600',
   dining:
     'https://images.unsplash.com/photo-1725859685127-c723ea1d32a1?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600',
+  diningDetail:
+    'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600',
   living:
     'https://images.unsplash.com/photo-1723750290151-164cb19ebab7?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600',
   lounge:

@@ -6,7 +6,12 @@ const userSchema = new mongoose.Schema(
     lastName: { type: String, trim: true, default: '' },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true },
-    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    role: { type: String, enum: ['user', 'admin', 'warehouse', 'accountant'], default: 'user' },
+    status: { type: String, enum: ['active', 'locked', 'inactive'], default: 'active' },
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date },
+    deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     newsletter: { type: Boolean, default: false },
     addresses: {
       type: [

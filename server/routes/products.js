@@ -17,13 +17,31 @@ function slugify(value) {
   return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
 
-function productPayload(body) {
-  const productId = body.productId || body.id;
+async function generateNextProductId() {
+  const products = await Product.find({ productId: /^prod_\d+$/ }).select('productId').lean();
+  const maxId = products.reduce((max, product) => {
+    const match = /^prod_(\d+)$/.exec(product.productId || '');
+    return match ? Math.max(max, Number(match[1])) : max;
+  }, 0);
+
+  return `prod_${String(maxId + 1).padStart(3, '0')}`;
+}
+
+function productPayload(body, productIdOverride) {
+  const { id: _id, productId: _productId, ...rest } = body;
+  const productId = productIdOverride || body.productId || body.id;
+  const details = { ...(body.details || {}) };
+
+  if (productId && !details.itemNumber) {
+    details.itemNumber = `BREW-DEMO-${productId.replace(/^prod_/, '')}`;
+  }
+
   return {
-    ...body,
+    ...rest,
     productId,
     slug: body.slug || slugify(body.name || productId),
     imageUrl: body.imageUrl || body.images?.[0] || '',
+    details,
   };
 }
 
@@ -76,7 +94,8 @@ router.get('/:id', async (req, res, next) => {
 
 router.post('/', requireAuth, requireAdmin, async (req, res, next) => {
   try {
-    const product = await Product.create(productPayload(req.body));
+    const productId = req.body.productId || req.body.id || await generateNextProductId();
+    const product = await Product.create(productPayload(req.body, productId));
     res.status(201).json(product);
   } catch (error) {
     next(error);

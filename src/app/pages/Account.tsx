@@ -6,8 +6,9 @@ import { ProductCard } from '../components/ProductCard';
 import { PlaceholderImage } from '../components/PlaceholderImage';
 import { useAuth } from '../context/AuthContext';
 import { useGlobal } from '../context/GlobalContext';
+import { formatDate } from '../lib/dates';
 
-type AccountSection = 'details' | 'addresses' | 'orders' | 'wishlist' | null;
+type AccountSection = 'details' | 'password' | 'addresses' | 'orders' | 'wishlist' | null;
 
 type Address = {
   label: string;
@@ -32,7 +33,7 @@ const emptyAddress: Address = {
 };
 
 export function Account() {
-  const { user, isAuthLoading, updateProfile, logout } = useAuth();
+  const { user, isAuthLoading, updateProfile, changePassword, logout } = useAuth();
   const { wishlist } = useGlobal();
   const [activeSection, setActiveSection] = useState<AccountSection>(null);
   const [isEditingDetails, setIsEditingDetails] = useState(false);
@@ -117,6 +118,33 @@ export function Account() {
     }
   }
 
+  async function handlePasswordSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const currentPassword = String(formData.get('currentPassword') || '');
+    const newPassword = String(formData.get('newPassword') || '');
+    const confirmPassword = String(formData.get('confirmPassword') || '');
+
+    if (newPassword.length < 8) {
+      toast.error('New password must be at least 8 characters.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error('New passwords do not match.');
+      return;
+    }
+
+    try {
+      await changePassword({ currentPassword, newPassword });
+      form.reset();
+      toast.success('Password changed');
+    } catch {
+      toast.error('Unable to change password. Check your current password.');
+    }
+  }
+
   async function deleteAddress() {
     try {
       await updateProfile({
@@ -193,6 +221,27 @@ export function Account() {
         </div>
 
         <div>
+          {sectionButton('password', 'Password')}
+          {activeSection === 'password' && (
+            <form onSubmit={handlePasswordSubmit} className="mt-5 space-y-5 text-lg">
+              <label className="block">
+                <span className="block text-sm font-medium">Current password</span>
+                <input name="currentPassword" type="password" autoComplete="current-password" required className={fieldClass} />
+              </label>
+              <label className="block">
+                <span className="block text-sm font-medium">New password</span>
+                <input name="newPassword" type="password" autoComplete="new-password" minLength={8} required className={fieldClass} />
+              </label>
+              <label className="block">
+                <span className="block text-sm font-medium">Confirm new password</span>
+                <input name="confirmPassword" type="password" autoComplete="new-password" minLength={8} required className={fieldClass} />
+              </label>
+              <button className={actionClass}>Change password</button>
+            </form>
+          )}
+        </div>
+
+        <div>
           {sectionButton('addresses', 'Addresses')}
           {activeSection === 'addresses' && (
             <div className="mt-4 space-y-8 text-lg">
@@ -258,7 +307,7 @@ export function Account() {
                     >
                       <span className="block font-medium">{order.orderNumber}</span>
                       <span className="block text-base text-[#737373]">
-                        {new Date(order.createdAt).toLocaleDateString()} - {order.currency} {order.total.toFixed(2)} - {order.status}
+                        {formatDate(order.createdAt)} - {order.currency} {order.total.toFixed(2)} - {order.status}
                       </span>
                     </button>
 
@@ -290,6 +339,12 @@ export function Account() {
                           </div>
                           <div className="space-y-2">
                             <div className="flex justify-between"><span>Subtotal</span><span>{order.currency} {order.subtotal.toFixed(2)}</span></div>
+                            {Number(order.discountTotal || 0) > 0 && (
+                              <div className="flex justify-between">
+                                <span>Discount</span>
+                                <span>-{order.currency} {Number(order.discountTotal || 0).toFixed(2)}</span>
+                              </div>
+                            )}
                             <div className="flex justify-between"><span>Shipping</span><span>{order.currency} {order.shippingTotal.toFixed(2)}</span></div>
                             <div className="flex justify-between"><span>Tax</span><span>{order.currency} {order.taxTotal.toFixed(2)}</span></div>
                             <div className="flex justify-between font-medium"><span>Total</span><span>{order.currency} {order.total.toFixed(2)}</span></div>

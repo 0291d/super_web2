@@ -52,6 +52,10 @@ router.post('/login', async (req, res, next) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    if (user.isDeleted === true || ['locked', 'inactive'].includes(user.status)) {
+      return res.status(403).json({ message: 'Account is not active' });
+    }
+
     user.lastLoginAt = new Date();
     await user.save();
 
@@ -89,6 +93,28 @@ router.patch('/me', requireAuth, async (req, res, next) => {
     }
 
     await req.user.save();
+    res.json({ user: publicUser(req.user) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch('/password', requireAuth, async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword || newPassword.length < 8) {
+      return res.status(400).json({ message: 'Current password and a new password with at least 8 characters are required' });
+    }
+
+    const isCurrentPasswordValid = await verifyPassword(currentPassword, req.user.passwordHash);
+    if (!isCurrentPasswordValid) {
+      return res.status(401).json({ message: 'Current password is incorrect' });
+    }
+
+    req.user.passwordHash = await hashPassword(newPassword);
+    await req.user.save();
+
     res.json({ user: publicUser(req.user) });
   } catch (error) {
     next(error);

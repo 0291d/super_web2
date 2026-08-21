@@ -26,6 +26,9 @@ const faqAnswers: Record<string, string> = {
     'Admins sign in through the normal Login page. After a successful admin login, the app redirects to the admin dashboard.',
 };
 
+const fermLivingAddress = 'Kuglegårdsvej 1-5, 1434 Copenhagen K, Denmark';
+const fermLivingMapSrc = `https://www.google.com/maps?q=${encodeURIComponent(fermLivingAddress)}&output=embed`;
+
 export function ServicePageDetail() {
   const { slug } = useParams();
   const [page, setPage] = useState<ServicePage | null>(null);
@@ -59,6 +62,7 @@ export function ServicePageDetail() {
   }
 
   const isFaqPage = page.slug === 'faq';
+  const isContactPage = page.slug === 'contact-us';
   const pendingDownload = page.ctaHref?.startsWith('/downloads/');
 
   return (
@@ -122,6 +126,34 @@ export function ServicePageDetail() {
               </section>
             ))}
           </div>
+        )}
+
+        {isContactPage && (
+          <section className="mt-10 border-b border-[#EAE7E0] py-10">
+            <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <h2 className="font-serif text-3xl">Visit Us</h2>
+                <p className="mt-2 text-[#737373]">{fermLivingAddress}</p>
+              </div>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fermLivingAddress)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm font-medium uppercase tracking-widest text-[#2D2D2D] underline underline-offset-4"
+              >
+                Open in Maps
+              </a>
+            </div>
+            <div className="aspect-[4/3] overflow-hidden border border-[#EAE7E0] bg-[#EAE7E0] md:aspect-[16/9]">
+              <iframe
+                title="Ferm Living location map"
+                src={fermLivingMapSrc}
+                className="h-full w-full"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
+          </section>
         )}
 
         {page.ctaLabel && page.ctaHref && (

@@ -16,6 +16,24 @@ const storyImages = [
   'https://images.unsplash.com/photo-1761295908436-89f850764209?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600',
 ];
 
+const storySourceUrls = [
+  'https://fermliving.com/blogs/stories/living-with-kids-at-home-with-fanny-nilsson',
+  'https://fermliving.com/blogs/stories/notes-on-romanticism-autumn-winter-2025',
+  'https://fermliving.com/blogs/stories/back-to-school-with-kids',
+  'https://fermliving.com/blogs/stories/office-edition-at-home-with-sune-palner',
+  'https://fermliving.com/blogs/stories/expanding-the-dapple-collection',
+  'https://fermliving.com/blogs/stories/copenhagen-city-guide-3daysofdesign',
+  'https://fermliving.com/blogs/stories/the-process-behind-vegea',
+  'https://fermliving.com/blogs/stories/set-the-outdoor-table-with-nuria-val',
+  'https://fermliving.com/blogs/stories/at-home-with-eva-papadaki',
+  'https://fermliving.com/blogs/stories/behind-the-design-dapple-collection',
+  'https://fermliving.com/blogs/stories/meet-our-design-studio',
+  'https://fermliving.com/blogs/stories/the-home-of-liene-meneve',
+  'https://fermliving.com/blogs/stories/the-art-of-balance',
+  'https://fermliving.com/blogs/stories/the-garden-of-malene-lei-raben',
+  'https://fermliving.com/blogs/stories/the-love-story-of-a-classic',
+];
+
 const storyGroups = [
   {
     category: 'Interior Design',
@@ -45,7 +63,7 @@ const storyGroups = [
     category: 'News',
     stories: [
       ['Spring Edit: New Shapes for Slow Rooms', 'Our seasonal edit introduces softened silhouettes and tactile finishes for everyday rooms.'],
-      ['BREW Studio Opens a Material Library', 'A behind-the-scenes look at the references guiding upcoming furniture and accessory work.'],
+      ['ferm LIVING Opens a Material Library', 'A behind-the-scenes look at the references guiding upcoming furniture and accessory work.'],
       ['Certified Pieces Join the Permanent Range', 'A short update on certified materials and longer-lasting home objects.'],
     ],
   },
@@ -81,7 +99,7 @@ export const stories = storyGroups.flatMap((group, groupIndex) =>
       excerpt,
       heroImage,
       images: [heroImage, secondaryImage, detailImage],
-      author: numericId % 2 === 0 ? 'BREW Editorial' : 'BREW Studio',
+      author: numericId % 2 === 0 ? 'ferm LIVING Editorial' : 'ferm LIVING Studio',
       publishedAt: new Date(Date.UTC(2026, (numericId % 6), 4 + numericId)),
       readTime: `${4 + (numericId % 4)} min read`,
       isFeatured: numericId === 1 || storyIndex === 0,
@@ -110,7 +128,8 @@ export const stories = storyGroups.flatMap((group, groupIndex) =>
         },
       ],
       relatedProductIds: [`prod_${String(((numericId - 1) % 33) + 1).padStart(3, '0')}`],
-      seoTitle: `${title} | BREW Inspire`,
+      sourceUrl: storySourceUrls[numericId - 1],
+      seoTitle: `${title} | ferm LIVING Stories`,
       seoDescription: excerpt,
     };
   }),

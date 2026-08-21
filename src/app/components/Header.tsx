@@ -5,6 +5,13 @@ import { useGlobal } from '../context/GlobalContext';
 import { useAuth } from '../context/AuthContext';
 import { shopLinkFor, shopMenu } from '../data/shopMenu';
 
+function accountDestination(role?: string) {
+  if (role === 'admin') return '/admin';
+  if (role === 'warehouse') return '/warehouse';
+  if (role === 'accountant') return '/accountant';
+  return '/account';
+}
+
 export function Header() {
   const { cartCount, setIsCartOpen, setIsSearchOpen, isMobileMenuOpen, setIsMobileMenuOpen } = useGlobal();
   const { user } = useAuth();
@@ -65,7 +72,7 @@ export function Header() {
             </Link>
             {user ? (
               <Link
-                to={user.role === 'admin' ? '/admin' : '/account'}
+                to={accountDestination(user.role)}
                 className="hover:text-[#9E9B94] transition-colors hidden lg:block"
                 aria-label="Account"
                 title={user.email}
@@ -170,7 +177,7 @@ export function Header() {
             <div className="flex flex-col gap-4 text-base font-sans">
               {user ? (
                 <Link
-                  to={user.role === 'admin' ? '/admin' : '/account'}
+                  to={accountDestination(user.role)}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center gap-3"
                 >

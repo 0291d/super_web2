@@ -1,20 +1,53 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { toast } from 'sonner';
-import { createOrder } from '../api/orders';
+import { createOrder, getMyOrders } from '../api/orders';
 import { PlaceholderImage } from '../components/PlaceholderImage';
+import { useAuth } from '../context/AuthContext';
 import { useGlobal } from '../context/GlobalContext';
+
+function roundMoney(value: number) {
+  return Math.round(value * 100) / 100;
+}
 
 export function Checkout() {
   const { cart, cartTotal, clearCart } = useGlobal();
+  const { user } = useAuth();
   const [sameBilling, setSameBilling] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState<'vnpay' | 'card_demo'>('vnpay');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [previousOrderCount, setPreviousOrderCount] = useState<number | null>(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!user) {
+      setPreviousOrderCount(null);
+      return;
+    }
+
+    getMyOrders()
+      .then((orders) => {
+        if (isMounted) {
+          setPreviousOrderCount(orders.filter((order) => order.status !== 'cancelled').length);
+        }
+      })
+      .catch(() => {
+        if (isMounted) setPreviousOrderCount(null);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
+
+  const discountRate = user && previousOrderCount !== null ? (previousOrderCount === 0 ? 0.1 : cartTotal > 500 ? 0.05 : 0) : 0;
+  const discountTotal = roundMoney(cartTotal * discountRate);
+  const discountedSubtotal = roundMoney(Math.max(0, cartTotal - discountTotal));
   const shippingTotal = cartTotal >= 150 ? 0 : 15;
-  const taxTotal = Math.round(cartTotal * 0.08 * 100) / 100;
-  const total = Math.round((cartTotal + shippingTotal + taxTotal) * 100) / 100;
+  const taxTotal = roundMoney(discountedSubtotal * 0.08);
+  const total = roundMoney(discountedSubtotal + shippingTotal + taxTotal);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -143,7 +176,7 @@ export function Checkout() {
             <h2 className="font-serif text-2xl">Contact</h2>
             <label>
               <span className={labelClass}>Email</span>
-              <input name="email" type="email" required className={fieldClass} />
+              <input name="email" type="email" defaultValue={user?.email || ''} required className={fieldClass} />
             </label>
           </section>
 
@@ -232,6 +265,15 @@ export function Checkout() {
           </div>
           <div className="space-y-3 border-t border-[#EAE7E0] pt-6 text-sm">
             <div className="flex justify-between text-[#737373]"><span>Subtotal</span><span>EUR {cartTotal.toFixed(2)}</span></div>
+            {discountTotal > 0 && (
+              <div className="flex justify-between text-[#737373]">
+                <span>{discountRate === 0.1 ? 'First order discount' : 'Account discount'}</span>
+                <span>-EUR {discountTotal.toFixed(2)}</span>
+              </div>
+            )}
+            {user && previousOrderCount !== null && previousOrderCount > 0 && cartTotal <= 500 && (
+              <div className="text-xs text-[#9E9B94]">5% account discount applies to orders over EUR 500.</div>
+            )}
             <div className="flex justify-between text-[#737373]"><span>Shipping</span><span>{shippingTotal === 0 ? 'Free' : `EUR ${shippingTotal.toFixed(2)}`}</span></div>
             <div className="flex justify-between text-[#737373]"><span>Estimated tax</span><span>EUR {taxTotal.toFixed(2)}</span></div>
             <div className="flex justify-between border-t border-[#EAE7E0] pt-4 text-lg font-medium"><span>Total</span><span>EUR {total.toFixed(2)}</span></div>

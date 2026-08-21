@@ -12,16 +12,16 @@ const emptyProduct: ProductDetail = {
   id: '',
   name: '',
   slug: '',
-  category: 'Furniture',
-  subcategory: 'Lounge Chairs',
-  room: ['Living Room'],
+  category: '',
+  subcategory: '',
+  room: [],
   price: 0,
   currency: 'EUR',
   description: '',
   shortDescription: '',
   images: [''],
   sizes: ['One Size'],
-  materials: ['Oak'],
+  materials: [],
   stock: 0,
   isNew: false,
   isCertified: false,
@@ -180,13 +180,11 @@ export function AdminProducts() {
   }
 
   function newProduct() {
-    const id = `prod_${Date.now().toString().slice(-6)}`;
     setSelectedId('');
     setForm({
       ...emptyProduct,
-      id,
       slug: '',
-      details: { ...emptyProduct.details, itemNumber: `BREW-DEMO-${id.replace('prod_', '')}` },
+      details: { ...emptyProduct.details },
     });
     setPreviewImageIndex(0);
   }
@@ -290,7 +288,11 @@ export function AdminProducts() {
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <label className="block">
                       <span className="mb-2 block text-xs uppercase tracking-widest text-[#737373]">ID</span>
-                      <input value={form.id} onChange={(event) => updateField('id', event.target.value)} className="w-full border border-[#EAE7E0] px-3 py-2" required />
+                      <input
+                        value={form.id || 'Auto-generated on save'}
+                        className="w-full border border-[#EAE7E0] bg-[#F9F8F6] px-3 py-2 text-[#737373]"
+                        readOnly
+                      />
                     </label>
                     <label className="block">
                       <span className="mb-2 block text-xs uppercase tracking-widest text-[#737373]">Slug</span>
@@ -302,7 +304,8 @@ export function AdminProducts() {
                     </label>
                     <label className="block">
                       <span className="mb-2 block text-xs uppercase tracking-widest text-[#737373]">Category</span>
-                      <select value={form.category} onChange={(event) => updateCategory(event.target.value)} className="w-full border border-[#EAE7E0] px-3 py-2">
+                      <select value={form.category} onChange={(event) => updateCategory(event.target.value)} className="w-full border border-[#EAE7E0] px-3 py-2" required>
+                        <option value="" disabled>Choose category</option>
                         {shopMenu.map((group) => <option key={group.title}>{group.title}</option>)}
                       </select>
                     </label>
@@ -316,7 +319,9 @@ export function AdminProducts() {
                     ) : (
                       <div className="block">
                         <span className="mb-2 block text-xs uppercase tracking-widest text-[#737373]">Subcategory</span>
-                        <div className="border border-[#EAE7E0] px-3 py-2 text-sm text-[#737373]">No subcategory</div>
+                        <div className="border border-[#EAE7E0] px-3 py-2 text-sm text-[#737373]">
+                          {form.category ? 'No subcategory' : 'Choose category first'}
+                        </div>
                       </div>
                     )}
                     <label className="block">
@@ -407,7 +412,15 @@ export function AdminProducts() {
                 <section>
                   <h2 className="mb-4 font-serif text-2xl">Details</h2>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {(['itemNumber', 'size', 'weight', 'material', 'origin'] as const).map((field) => (
+                    <label className="block">
+                      <span className="mb-2 block text-xs uppercase tracking-widest text-[#737373]">itemNumber</span>
+                      <input
+                        value={form.details?.itemNumber || 'Auto-generated on save'}
+                        className="w-full border border-[#EAE7E0] bg-[#F9F8F6] px-3 py-2 text-[#737373]"
+                        readOnly
+                      />
+                    </label>
+                    {(['size', 'weight', 'material', 'origin'] as const).map((field) => (
                       <label key={field} className="block">
                         <span className="mb-2 block text-xs uppercase tracking-widest text-[#737373]">{field}</span>
                         <input value={form.details?.[field] || ''} onChange={(event) => updateDetails(field, event.target.value)} className="w-full border border-[#EAE7E0] px-3 py-2" />

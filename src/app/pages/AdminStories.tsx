@@ -15,7 +15,7 @@ const emptyStory: Story = {
   excerpt: '',
   heroImage: '',
   images: [''],
-  author: 'BREW Studio',
+  author: 'ferm LIVING Studio',
   publishedAt: new Date().toISOString().slice(0, 10),
   readTime: '5 min read',
   isFeatured: false,
@@ -27,6 +27,7 @@ const emptyStory: Story = {
   ],
   quote: '',
   relatedProductIds: [],
+  sourceUrl: '',
   seoTitle: '',
   seoDescription: '',
 };
@@ -366,6 +367,10 @@ export function AdminStories() {
                     <label>
                       <span className="mb-2 block text-xs uppercase tracking-widest text-[#737373]">Related Product IDs</span>
                       <input value={joinCsv(form.relatedProductIds)} onChange={(event) => updateField('relatedProductIds', splitCsv(event.target.value))} className="w-full border border-[#EAE7E0] px-3 py-2" />
+                    </label>
+                    <label className="md:col-span-2">
+                      <span className="mb-2 block text-xs uppercase tracking-widest text-[#737373]">Read More / Ferm Living URL</span>
+                      <input value={form.sourceUrl || ''} onChange={(event) => updateField('sourceUrl', event.target.value)} className="w-full border border-[#EAE7E0] px-3 py-2" />
                     </label>
                     <label>
                       <span className="mb-2 block text-xs uppercase tracking-widest text-[#737373]">SEO Title</span>

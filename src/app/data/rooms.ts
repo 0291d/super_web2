@@ -9,6 +9,17 @@ export const roomOptions = [
   'Green Space',
 ];
 
+export const roomImages: Record<string, string> = {
+  'Living Room': '',
+  'Dining Room': '',
+  Kitchen: '',
+  Hallway: '',
+  Bedroom: '',
+  Bathroom: '',
+  Office: '',
+  'Green Space': '',
+};
+
 export function roomSlug(room: string) {
   return room.toLowerCase().replace(/\s+/g, '-');
 }

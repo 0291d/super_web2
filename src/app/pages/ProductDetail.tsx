@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router';
 import { useGlobal } from '../context/GlobalContext';
 import { PlaceholderImage } from '../components/PlaceholderImage';
 import { ProductCard } from '../components/ProductCard';
-import { Minus, Plus, ChevronDown, Heart, Share2, Download } from 'lucide-react';
+import { Minus, Plus, ChevronDown, Heart, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getProduct, getProducts, ProductDetail as ProductDetailType } from '../api/products';
 import { PRODUCT_IMAGES } from '../lib/images';
@@ -97,26 +97,12 @@ export function ProductDetail() {
   const details = product.details || FALLBACK_PRODUCT.details;
   const isOutOfStock = product.stock !== undefined && product.stock < 1;
   const maxQuantity = product.stock && product.stock > 0 ? product.stock : Number.POSITIVE_INFINITY;
+  const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
     addToCart(product, qty);
     toast.success(`${product.name} added to cart`);
-  };
-
-  const handleShare = async () => {
-    const url = window.location.href;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: product.name, text: product.shortDescription, url });
-        return;
-      }
-      await navigator.clipboard.writeText(url);
-      toast.success('Product link copied');
-    } catch (error) {
-      if (error instanceof DOMException && error.name === 'AbortError') return;
-      toast.error('Unable to share this product');
-    }
   };
 
   const toggleAccordion = (name: string) => {
@@ -234,14 +220,15 @@ export function ProductDetail() {
           </div>
 
           <div className="mt-8 flex gap-4 text-sm text-[#737373]">
-            <button type="button" onClick={handleShare} className="flex items-center gap-2 hover:text-[#2D2D2D]"><Share2 className="w-4 h-4" /> Share</button>
-            <button
-              type="button"
-              onClick={() => toast.info('2D/3D files are not available for this product yet.')}
+            <a
+              href={facebookShareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2 hover:text-[#2D2D2D]"
+              aria-label={`Share ${product.name} on Facebook`}
             >
-              <Download className="w-4 h-4" /> Request 2D/3D
-            </button>
+              <Share2 className="w-4 h-4" /> Share
+            </a>
           </div>
         </div>
       </div>

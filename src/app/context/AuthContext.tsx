@@ -1,6 +1,7 @@
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import {
   AuthUser,
+  changeCurrentUserPassword,
   clearAuthToken,
   getCurrentUser,
   login as loginRequest,
@@ -27,6 +28,10 @@ type AuthContextType = {
     lastName: string;
     newsletter?: boolean;
     addresses?: AuthUser['addresses'];
+  }) => Promise<AuthUser>;
+  changePassword: (input: {
+    currentPassword: string;
+    newPassword: string;
   }) => Promise<AuthUser>;
   logout: () => void;
 };
@@ -68,13 +73,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return updatedUser;
   }
 
+  async function changePassword(input: {
+    currentPassword: string;
+    newPassword: string;
+  }) {
+    const updatedUser = await changeCurrentUserPassword(input);
+    setUser(updatedUser);
+    return updatedUser;
+  }
+
   function logout() {
     clearAuthToken();
     setUser(null);
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthLoading, login, register, updateProfile, logout }}>
+    <AuthContext.Provider value={{ user, isAuthLoading, login, register, updateProfile, changePassword, logout }}>
       {children}
     </AuthContext.Provider>
   );

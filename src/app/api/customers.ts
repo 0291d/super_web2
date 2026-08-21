@@ -5,7 +5,9 @@ export type AdminCustomer = {
   firstName: string;
   lastName: string;
   email: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'warehouse' | 'accountant';
+  status?: 'active' | 'locked' | 'inactive';
+  isDeleted?: boolean;
   newsletter?: boolean;
   addresses?: Array<{
     label: string;

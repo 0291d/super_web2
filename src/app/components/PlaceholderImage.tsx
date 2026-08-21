@@ -10,7 +10,7 @@ interface PlaceholderImageProps {
 }
 
 export function PlaceholderImage({ className = '', text, aspectRatio = 'aspect-square', src, alt }: PlaceholderImageProps) {
-  const fallbackSrc = useMemo(() => imageForPlaceholder(text || alt), [text, alt]);
+  const fallbackSrc = useMemo(() => imageForPlaceholder(text || alt) || imageForPlaceholder('room'), [text, alt]);
   const [imageSrc, setImageSrc] = useState(src || fallbackSrc);
 
   useEffect(() => {

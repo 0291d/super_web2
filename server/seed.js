@@ -11,6 +11,7 @@ import { User } from './models/User.js';
 import { products } from './seed/products.seed.js';
 import { orders } from './seed/orders.seed.js';
 import { customerPassword, customers } from './seed/customers.seed.js';
+import { professionalInquiries } from './seed/professionalInquiries.seed.js';
 import { professionalPage } from './seed/professionals.seed.js';
 import { servicePages } from './seed/servicePages.seed.js';
 import { stories } from './seed/stories.seed.js';
@@ -20,24 +21,29 @@ import { syncLocalProductImages } from './utils/syncLocalProductImages.js';
 dotenv.config();
 
 await connectDB();
-await Product.bulkWrite(
-  products.map((product) => ({
-    updateOne: {
-      filter: { productId: product.productId },
-      update: { $set: product },
-      upsert: true,
-    },
-  })),
-);
+if (products.length) {
+  await Product.bulkWrite(
+    products.map((product) => ({
+      updateOne: {
+        filter: { productId: product.productId },
+        update: { $set: product },
+        upsert: true,
+      },
+    })),
+  );
+}
 const projectRoot = process.cwd();
 const imageSyncResult = await syncLocalProductImages({ projectRoot });
 await Order.deleteMany({});
-await Order.insertMany(orders);
+if (orders.length) {
+  await Order.insertMany(orders);
+}
 await Story.deleteMany({});
 await Story.insertMany(stories);
 await Professional.deleteMany({});
 await Professional.create(professionalPage);
 await ProfessionalInquiry.deleteMany({});
+await ProfessionalInquiry.insertMany(professionalInquiries);
 await ServicePage.deleteMany({});
 await ServicePage.insertMany(servicePages);
 
@@ -46,6 +52,7 @@ console.log(`Synced local images for ${imageSyncResult.updatedExistingCount || 0
 console.log(`Seeded ${orders.length} demo orders into brew.orders`);
 console.log(`Seeded ${stories.length} inspire stories into brew.stories`);
 console.log('Seeded professionals page into brew.professionals');
+console.log(`Seeded ${professionalInquiries.length} project inquiries into brew professional inquiries`);
 console.log(`Seeded ${servicePages.length} service pages into brew.servicepages`);
 
 const customerPasswordHash = await hashPassword(customerPassword);

@@ -3,6 +3,13 @@ import { Link, useLocation, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 
+function destinationForRole(role: string, redirectTo: string, adminRedirectTo: string) {
+  if (role === 'admin') return adminRedirectTo;
+  if (role === 'warehouse') return redirectTo.startsWith('/warehouse') ? redirectTo : '/warehouse';
+  if (role === 'accountant') return redirectTo.startsWith('/accountant') ? redirectTo : '/accountant';
+  return redirectTo;
+}
+
 export function Login() {
   const [isLogin, setIsLogin] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,7 +31,7 @@ export function Login() {
 
   useEffect(() => {
     if (isAuthLoading || !user) return;
-    navigate(user.role === 'admin' ? adminRedirectTo : redirectTo, { replace: true });
+    navigate(destinationForRole(user.role, redirectTo, adminRedirectTo), { replace: true });
   }, [adminRedirectTo, isAuthLoading, navigate, redirectTo, user]);
 
   async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
@@ -38,7 +45,7 @@ export function Login() {
     try {
       const user = await login(email, password);
       toast.success(`Signed in as ${user.email}`);
-      navigate(user.role === 'admin' ? adminRedirectTo : redirectTo, { replace: true });
+      navigate(destinationForRole(user.role, redirectTo, adminRedirectTo), { replace: true });
     } catch {
       toast.error('Invalid email or password');
     } finally {
@@ -61,7 +68,7 @@ export function Login() {
         newsletter: formData.get('newsletter') === 'on',
       });
       toast.success('Account created');
-      navigate(user.role === 'admin' ? '/admin' : redirectTo, { replace: true });
+      navigate(destinationForRole(user.role, redirectTo, '/admin'), { replace: true });
     } catch {
       toast.error('Unable to create account. Password must be at least 8 characters.');
     } finally {

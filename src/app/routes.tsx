@@ -23,11 +23,24 @@ const AdminLayout = lazy(() => import("./components/AdminLayout").then((module) 
 const AdminProducts = lazy(() => import("./pages/AdminProducts").then((module) => ({ default: module.AdminProducts })));
 const AdminRooms = lazy(() => import("./pages/AdminRooms").then((module) => ({ default: module.AdminRooms })));
 const AdminProfessionals = lazy(() => import("./pages/AdminProfessionals").then((module) => ({ default: module.AdminProfessionals })));
+const AdminProjectInquiries = lazy(() => import("./pages/AdminProjectInquiries").then((module) => ({ default: module.AdminProjectInquiries })));
 const AdminServicePages = lazy(() => import("./pages/AdminServicePages").then((module) => ({ default: module.AdminServicePages })));
 const AdminStories = lazy(() => import("./pages/AdminStories").then((module) => ({ default: module.AdminStories })));
 const AdminRevenue = lazy(() => import("./pages/AdminRevenue").then((module) => ({ default: module.AdminRevenue })));
 const AdminCustomers = lazy(() => import("./pages/AdminCustomers").then((module) => ({ default: module.AdminCustomers })));
 const AdminOrders = lazy(() => import("./pages/AdminOrders").then((module) => ({ default: module.AdminOrders })));
+const AdminAccounts = lazy(() => import("./pages/AdminAccounts").then((module) => ({ default: module.AdminAccounts })));
+const WarehouseLayout = lazy(() => import("./components/WarehouseLayout").then((module) => ({ default: module.WarehouseLayout })));
+const WarehouseInventory = lazy(() => import("./pages/WarehouseInventory").then((module) => ({ default: module.WarehouseInventory })));
+const WarehouseReceipts = lazy(() => import("./pages/WarehouseReceipts").then((module) => ({ default: module.WarehouseReceipts })));
+const WarehouseIssues = lazy(() => import("./pages/WarehouseIssues").then((module) => ({ default: module.WarehouseIssues })));
+const WarehouseCounts = lazy(() => import("./pages/WarehouseCounts").then((module) => ({ default: module.WarehouseCounts })));
+const WarehouseHistory = lazy(() => import("./pages/WarehouseHistory").then((module) => ({ default: module.WarehouseHistory })));
+const AccountantLayout = lazy(() => import("./components/AccountantLayout").then((module) => ({ default: module.AccountantLayout })));
+const AccountantJournals = lazy(() => import("./pages/AccountantJournals").then((module) => ({ default: module.AccountantJournals })));
+const AccountantReconciliations = lazy(() => import("./pages/AccountantReconciliations").then((module) => ({ default: module.AccountantReconciliations })));
+const AccountantAdjustments = lazy(() => import("./pages/AccountantAdjustments").then((module) => ({ default: module.AccountantAdjustments })));
+const AccountantExceptions = lazy(() => import("./pages/AccountantExceptions").then((module) => ({ default: module.AccountantExceptions })));
 
 export const router = createBrowserRouter([
   {
@@ -64,10 +77,35 @@ export const router = createBrowserRouter([
           { path: "orders", Component: AdminOrders },
           { path: "products", Component: AdminProducts },
           { path: "customers", Component: AdminCustomers },
+          { path: "accounts", Component: AdminAccounts },
           { path: "rooms", Component: AdminRooms },
           { path: "professionals", Component: AdminProfessionals },
+          { path: "project-inquiries", Component: AdminProjectInquiries },
           { path: "customer-service", Component: AdminServicePages },
           { path: "inspire", Component: AdminStories },
+        ],
+      },
+      {
+        path: "warehouse",
+        Component: WarehouseLayout,
+        children: [
+          { index: true, element: <Navigate to="inventory" replace /> },
+          { path: "inventory", Component: WarehouseInventory },
+          { path: "receipts", Component: WarehouseReceipts },
+          { path: "issues", Component: WarehouseIssues },
+          { path: "counts", Component: WarehouseCounts },
+          { path: "history", Component: WarehouseHistory },
+        ],
+      },
+      {
+        path: "accountant",
+        Component: AccountantLayout,
+        children: [
+          { index: true, element: <Navigate to="journals" replace /> },
+          { path: "journals", Component: AccountantJournals },
+          { path: "reconciliations", Component: AccountantReconciliations },
+          { path: "adjustments", Component: AccountantAdjustments },
+          { path: "exceptions", Component: AccountantExceptions },
         ],
       },
     ],

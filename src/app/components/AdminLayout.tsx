@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router';
-import { BarChart3, BookOpen, BriefcaseBusiness, DoorOpen, Headphones, LayoutDashboard, LogOut, Package, ReceiptText, UsersRound } from 'lucide-react';
+import { BarChart3, BookOpen, BriefcaseBusiness, ClipboardList, DoorOpen, Headphones, LayoutDashboard, LogOut, Package, ReceiptText, UserCog, UsersRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const adminLinks = [
@@ -8,8 +8,10 @@ const adminLinks = [
   { to: '/admin/orders', label: 'Orders', icon: ReceiptText },
   { to: '/admin/products', label: 'Products', icon: Package },
   { to: '/admin/customers', label: 'Customers', icon: UsersRound },
+  { to: '/admin/accounts', label: 'Accounts', icon: UserCog },
   { to: '/admin/rooms', label: 'Rooms', icon: DoorOpen },
   { to: '/admin/professionals', label: 'Professionals', icon: BriefcaseBusiness },
+  { to: '/admin/project-inquiries', label: 'Project Inquiries', icon: ClipboardList },
   { to: '/admin/customer-service', label: 'Customer Service', icon: Headphones },
   { to: '/admin/inspire', label: 'Inspire', icon: BookOpen },
 ];
